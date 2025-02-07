@@ -1,14 +1,3 @@
-Version: 1.0
-ProjectId: c28ed4b5-2e3e-4f58-bac7-eeadf7e3d1e4
+Submission materials for STA 9750 at Baruch College. 
 
-RestoreWorkspace: Default
-SaveWorkspace: Default
-AlwaysSaveHistory: Default
-
-EnableCodeIndexing: Yes
-UseSpacesForTab: Yes
-NumSpacesForTab: 2
-Encoding: UTF-8
-
-RnwWeave: Sweave
-LaTeX: pdfLaTeX
+Owner: <DEVARSHILALA>
