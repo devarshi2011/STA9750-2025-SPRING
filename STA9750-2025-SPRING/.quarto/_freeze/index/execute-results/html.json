@@ -1,0 +1,19 @@
+{
+  "hash": "3e20d12f4a067e202e348172d8f45a48",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"MINI PROJECT 00\"\n---\n\n\n\nMy name is Devarshi Lala, and I am an International Master’s of Business Analytics (concentration in\nMarketing Analytics) student at Baruch College’s Zicklin School of Business. I am currently in my second\nsemester of college, graduating in January 2026. I completed my Bachelor of Management Studies in the year\n2021 from Mumbai University.\n\n\n\n\n\n--------------\n\n\n::: {.cell}\n::: {.cell-output-display}\n\n```{=html}\n<div class=\"leaflet html-widget html-fill-item\" id=\"htmlwidget-e5bdcd4c702b3b949733\" style=\"width:100%;height:464px;\"></div>\n<script type=\"application/json\" data-for=\"htmlwidget-e5bdcd4c702b3b949733\">{\"x\":{\"options\":{\"crs\":{\"crsClass\":\"L.CRS.EPSG3857\",\"code\":null,\"proj4def\":null,\"projectedBounds\":null,\"options\":{}}},\"calls\":[{\"method\":\"addTiles\",\"args\":[\"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png\",null,null,{\"minZoom\":0,\"maxZoom\":18,\"tileSize\":256,\"subdomains\":\"abc\",\"errorTileUrl\":\"\",\"tms\":false,\"noWrap\":false,\"zoomOffset\":0,\"zoomReverse\":false,\"opacity\":1,\"zIndex\":1,\"detectRetina\":false,\"attribution\":\"&copy; <a href=\\\"https://openstreetmap.org/copyright/\\\">OpenStreetMap<\\/a>,  <a href=\\\"https://opendatacommons.org/licenses/odbl/\\\">ODbL<\\/a>\"}]},{\"method\":\"addPopups\",\"args\":[40.75028,-73.98333,\"I am a Master's student at <b>Baruch College<\\/b>!\",null,null,{\"maxWidth\":300,\"minWidth\":50,\"autoPan\":true,\"keepInView\":false,\"closeButton\":true,\"className\":\"\"}]}],\"setView\":[[40.75028,-73.98333],17,[]],\"limits\":{\"lat\":[40.75028,40.75028],\"lng\":[-73.98333,-73.98333]}},\"evals\":[],\"jsHooks\":[]}</script>\n```\n\n:::\n:::\n\n\n------\nLast Updated: Friday 02 14, 2025 at 13:41PM",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {
+      "include-in-header": [
+        "<script src=\"site_libs/htmlwidgets-1.6.4/htmlwidgets.js\"></script>\n<script src=\"site_libs/jquery-3.6.0/jquery-3.6.0.min.js\"></script>\n<link href=\"site_libs/leaflet-1.3.1/leaflet.css\" rel=\"stylesheet\" />\n<script src=\"site_libs/leaflet-1.3.1/leaflet.js\"></script>\n<link href=\"site_libs/leafletfix-1.0.0/leafletfix.css\" rel=\"stylesheet\" />\n<script src=\"site_libs/proj4-2.6.2/proj4.min.js\"></script>\n<script src=\"site_libs/Proj4Leaflet-1.0.1/proj4leaflet.js\"></script>\n<link href=\"site_libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css\" rel=\"stylesheet\" />\n<script src=\"site_libs/leaflet-binding-2.2.2/leaflet.js\"></script>\n"
+      ]
+    },
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
