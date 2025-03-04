@@ -4,3 +4,5 @@
 .Ruserdata
 data/mp01/nyc_payroll_export.csv
 data/mp01/nyc_payroll_cleaned.csv
+local_data/mp01/nyc_payroll_cleaned.csv
+local_data/mp01/nyc_payroll_export.csv
