@@ -8,15 +8,70 @@ editor: visual
 
 ```{r}
 library(tidyverse)
+library(stringr)
 library(readr)
 
-payroll_data <- read_csv("data/mp01/nyc_payroll_export.csv")
+if (!file.exists("local_data/nyc_payroll_export.csv")) {
+  
+  dir.create("local_data", showWarnings = FALSE, recursive = TRUE)
+  
+  ENDPOINT <- "https://data.cityofnewyork.us/resource/k397-673e.json"
+  
+  packages <- c("httr2", "jsonlite", "dplyr", "readr")
+  
+  for (pkg in packages) {
+    if (!require(pkg, character.only = TRUE)) install.packages(pkg, dependencies = TRUE)
+    library(pkg, character.only = TRUE)
+  }
+  
+  
+  BATCH_SIZE <- 50000
+  OFFSET <- 0
+  END_OF_EXPORT <- FALSE
+  ALL_DATA <- list()
+  
+  
+  while (!END_OF_EXPORT) {
+    cat("Requesting items", OFFSET, "to", BATCH_SIZE + OFFSET, "\n")
+    
+    
+    req <- request(ENDPOINT) |>
+      req_url_query(`$limit`  = BATCH_SIZE, 
+                    `$offset` = OFFSET)
+    
+    resp <- req_perform(req)
+    
+   
+    batch_data <- fromJSON(resp_body_string(resp))
+    
+    
+    ALL_DATA <- append(ALL_DATA, list(batch_data))
+    
+    
+    if (NROW(batch_data) != BATCH_SIZE) {
+      END_OF_EXPORT <- TRUE
+      cat("End of Data Export Reached\n")
+    } else {
+      OFFSET <- OFFSET + BATCH_SIZE
+    }
+  }
+  
+  
+  ALL_DATA <- bind_rows(ALL_DATA)
+  
+  cat("Data export complete:", NROW(ALL_DATA), "rows and", NCOL(ALL_DATA), "columns.\n")
+  
+  
+  write_csv(ALL_DATA, "local_data/nyc_payroll_export.csv")
+  
+} else {
+  cat("File already exists. Skipping download.\n")
+}
+
+payroll_data <- read_csv("local_data/nyc_payroll_export.csv")
 
 glimpse(payroll_data)
-
 head(payroll_data)
-library(tidyverse)
-library(stringr)
 ```
 
 ```{r}
@@ -57,7 +112,7 @@ payroll_cleaned <- payroll_cleaned %>%
   )
 unique(payroll_cleaned$work_location_borough)
 
-write_csv(payroll_cleaned, "data/mp01/nyc_payroll_cleaned.csv")
+write_csv(payroll_cleaned, "local_data/nyc_payroll_cleaned.csv")
 ```
 
 ```{r}
