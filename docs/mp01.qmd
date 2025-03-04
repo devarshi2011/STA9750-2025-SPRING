@@ -327,19 +327,16 @@ list(affected_agencies, affected_job_titles)
 ```
 
 ```{r}
-# Step 1: Compute total overtime hours worked per agency and job title
 overtime_usage <- payroll_cleaned %>%
   group_by(agency_name, title_description) %>%
   summarise(total_overtime_hours = sum(ot_hours, na.rm = TRUE), .groups = "drop") %>%
-  filter(total_overtime_hours > 0)  # Keep only roles with overtime usage
+  filter(total_overtime_hours > 0) 
 
-# Step 2: Estimate full-time employees needed to replace overtime
-# Assuming a full-time employee works 2000 hours per year
+
 overtime_usage <- overtime_usage %>%
   mutate(full_time_replacements = total_overtime_hours / 2000)
 
-# Step 3: Calculate savings by converting overtime hours to regular hours
-# Regular pay is base_salary per hour, overtime is paid at 1.5x
+
 savings_analysis <- payroll_cleaned %>%
   group_by(agency_name, title_description) %>%
   summarise(
