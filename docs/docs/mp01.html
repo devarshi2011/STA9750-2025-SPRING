@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Dev Lala">
+<meta name="dcterms.date" content="2025-03-03">
+
+<title>NYC Payroll Analysis: Identifying Potential Savings – STA 9750 Submission Material</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-87b32c3b430758d9b655e5618da538fa.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+
+
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">STA 9750 Submission Material</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">NYC Payroll Analysis: Identifying Potential Savings</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Dev Lala </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 3, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.0     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>payroll_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/mp01/nyc_payroll_export.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 6225611 Columns: 17
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (8): agency_name, last_name, first_name, mid_init, work_location_boroug...
+dbl  (8): fiscal_year, payroll_number, base_salary, regular_hours, regular_g...
+dttm (1): agency_start_date
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(payroll_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 6,225,611
+Columns: 17
+$ fiscal_year                &lt;dbl&gt; 2024, 2024, 2024, 2024, 2024, 2024, 2024, 2…
+$ payroll_number             &lt;dbl&gt; 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67,…
+$ agency_name                &lt;chr&gt; "ADMIN FOR CHILDREN'S SVCS", "ADMIN FOR CHI…
+$ last_name                  &lt;chr&gt; "FAYE FALL", "KILGORE", "WISDOM", "MILLER",…
+$ first_name                 &lt;chr&gt; "SOKHNA", "ORLANTHA", "CHERISE", "MOYA-GAYE…
+$ mid_init                   &lt;chr&gt; "M", "B", "M", "S", "M", "L", "O", NA, "N",…
+$ agency_start_date          &lt;dttm&gt; 2023-11-20, 2023-08-28, 2022-10-24, 2023-0…
+$ work_location_borough      &lt;chr&gt; "BRONX", "BROOKLYN", "MANHATTAN", "MANHATTA…
+$ title_description          &lt;chr&gt; "CHILD PROTECTIVE SPECIALIST", "CHILD PROTE…
+$ leave_status_as_of_june_30 &lt;chr&gt; "ACTIVE", "ACTIVE", "ON LEAVE", "ON LEAVE",…
+$ base_salary                &lt;dbl&gt; 62043, 62043, 43144, 62043, 60236, 62043, 6…
+$ pay_basis                  &lt;chr&gt; "per Annum", "per Annum", "per Annum", "per…
+$ regular_hours              &lt;dbl&gt; 1050.00, 1470.00, 1251.50, 1400.75, 700.00,…
+$ regular_gross_paid         &lt;dbl&gt; 31267.96, 44660.96, 28649.20, 44515.43, 221…
+$ ot_hours                   &lt;dbl&gt; 12.00, 99.75, 30.00, 44.75, 53.00, 146.00, …
+$ total_ot_paid              &lt;dbl&gt; 425.00, 3859.84, 802.42, 1476.98, 1933.33, …
+$ total_other_pay            &lt;dbl&gt; 78.04, 78.14, 78.26, 78.37, 78.47, 78.86, 7…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(payroll_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 17
+  fiscal_year payroll_number agency_name           last_name first_name mid_init
+        &lt;dbl&gt;          &lt;dbl&gt; &lt;chr&gt;                 &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;   
+1        2024             67 ADMIN FOR CHILDREN'S… FAYE FALL SOKHNA     M       
+2        2024             67 ADMIN FOR CHILDREN'S… KILGORE   ORLANTHA   B       
+3        2024             67 ADMIN FOR CHILDREN'S… WISDOM    CHERISE    M       
+4        2024             67 ADMIN FOR CHILDREN'S… MILLER    MOYA-GAYE  S       
+5        2024             67 ADMIN FOR CHILDREN'S… BRADLEY   YASHIKA    M       
+6        2024             67 ADMIN FOR CHILDREN'S… MAURINO   JENNIFER   L       
+# ℹ 11 more variables: agency_start_date &lt;dttm&gt;, work_location_borough &lt;chr&gt;,
+#   title_description &lt;chr&gt;, leave_status_as_of_june_30 &lt;chr&gt;,
+#   base_salary &lt;dbl&gt;, pay_basis &lt;chr&gt;, regular_hours &lt;dbl&gt;,
+#   regular_gross_paid &lt;dbl&gt;, ot_hours &lt;dbl&gt;, total_ot_paid &lt;dbl&gt;,
+#   total_other_pay &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>payroll_cleaned <span class="ot">&lt;-</span> payroll_data <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">agency_name =</span> <span class="fu">str_to_title</span>(agency_name),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">last_name =</span> <span class="fu">str_to_title</span>(last_name),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">first_name =</span> <span class="fu">str_to_title</span>(first_name),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">work_location_borough =</span> <span class="fu">str_to_title</span>(work_location_borough),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title_description =</span> <span class="fu">str_to_title</span>(title_description),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">leave_status_as_of_june_30 =</span> <span class="fu">str_to_title</span>(leave_status_as_of_june_30)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(payroll_cleaned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 6,225,611
+Columns: 17
+$ fiscal_year                &lt;dbl&gt; 2024, 2024, 2024, 2024, 2024, 2024, 2024, 2…
+$ payroll_number             &lt;dbl&gt; 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67,…
+$ agency_name                &lt;chr&gt; "Admin For Children's Svcs", "Admin For Chi…
+$ last_name                  &lt;chr&gt; "Faye Fall", "Kilgore", "Wisdom", "Miller",…
+$ first_name                 &lt;chr&gt; "Sokhna", "Orlantha", "Cherise", "Moya-Gaye…
+$ mid_init                   &lt;chr&gt; "M", "B", "M", "S", "M", "L", "O", NA, "N",…
+$ agency_start_date          &lt;dttm&gt; 2023-11-20, 2023-08-28, 2022-10-24, 2023-0…
+$ work_location_borough      &lt;chr&gt; "Bronx", "Brooklyn", "Manhattan", "Manhatta…
+$ title_description          &lt;chr&gt; "Child Protective Specialist", "Child Prote…
+$ leave_status_as_of_june_30 &lt;chr&gt; "Active", "Active", "On Leave", "On Leave",…
+$ base_salary                &lt;dbl&gt; 62043, 62043, 43144, 62043, 60236, 62043, 6…
+$ pay_basis                  &lt;chr&gt; "per Annum", "per Annum", "per Annum", "per…
+$ regular_hours              &lt;dbl&gt; 1050.00, 1470.00, 1251.50, 1400.75, 700.00,…
+$ regular_gross_paid         &lt;dbl&gt; 31267.96, 44660.96, 28649.20, 44515.43, 221…
+$ ot_hours                   &lt;dbl&gt; 12.00, 99.75, 30.00, 44.75, 53.00, 146.00, …
+$ total_ot_paid              &lt;dbl&gt; 425.00, 3859.84, 802.42, 1476.98, 1933.33, …
+$ total_other_pay            &lt;dbl&gt; 78.04, 78.14, 78.26, 78.37, 78.47, 78.86, 7…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(payroll_cleaned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 17
+  fiscal_year payroll_number agency_name           last_name first_name mid_init
+        &lt;dbl&gt;          &lt;dbl&gt; &lt;chr&gt;                 &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;   
+1        2024             67 Admin For Children's… Faye Fall Sokhna     M       
+2        2024             67 Admin For Children's… Kilgore   Orlantha   B       
+3        2024             67 Admin For Children's… Wisdom    Cherise    M       
+4        2024             67 Admin For Children's… Miller    Moya-Gaye  S       
+5        2024             67 Admin For Children's… Bradley   Yashika    M       
+6        2024             67 Admin For Children's… Maurino   Jennifer   L       
+# ℹ 11 more variables: agency_start_date &lt;dttm&gt;, work_location_borough &lt;chr&gt;,
+#   title_description &lt;chr&gt;, leave_status_as_of_june_30 &lt;chr&gt;,
+#   base_salary &lt;dbl&gt;, pay_basis &lt;chr&gt;, regular_hours &lt;dbl&gt;,
+#   regular_gross_paid &lt;dbl&gt;, ot_hours &lt;dbl&gt;, total_ot_paid &lt;dbl&gt;,
+#   total_other_pay &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p><strong>Fixing Boroughs names</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>payroll_cleaned <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">work_location_borough =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>      work_location_borough <span class="sc">==</span> <span class="st">"Richmond"</span> <span class="sc">~</span> <span class="st">"Staten Island"</span>,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Moving non-NYC locations into a column named "Other"</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>      work_location_borough <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Orange"</span>, <span class="st">"Westchester"</span>, <span class="st">"Sullivan"</span>, <span class="st">"Nassau"</span>, </span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Delaware"</span>, <span class="st">"Ulster"</span>, <span class="st">"Washington Dc"</span>, <span class="st">"Putnam"</span>, </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Schoharie"</span>, <span class="st">"Dutchess"</span>, <span class="st">"Greene"</span>, <span class="st">"Albany"</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">~</span> <span class="st">"Other"</span>,</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> work_location_borough</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(payroll_cleaned<span class="sc">$</span>work_location_borough)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Bronx"         "Brooklyn"      "Manhattan"     "Staten Island"
+[5] "Queens"        NA              "Other"        </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(payroll_cleaned, <span class="st">"data/mp01/nyc_payroll_cleaned.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr) </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DT)    </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'scales'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    discard</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:readr':
+
+    col_factor</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>eric_adams_data <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    first_name <span class="sc">==</span> <span class="st">"Eric"</span> <span class="sc">&amp;</span> last_name <span class="sc">==</span> <span class="st">"Adams"</span>  </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, title_description, agency_name, regular_gross_paid) <span class="sc">%&gt;%</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Fiscal Year</span><span class="st">`</span> <span class="ot">=</span> fiscal_year,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Position</span><span class="st">`</span> <span class="ot">=</span> title_description,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Agency</span><span class="st">`</span> <span class="ot">=</span> agency_name,</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Total Salary</span><span class="st">`</span> <span class="ot">=</span> regular_gross_paid</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="st">`</span><span class="at">Fiscal Year</span><span class="st">`</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>eric_adams_data <span class="ot">&lt;-</span> eric_adams_data <span class="sc">%&gt;%</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Total Salary</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">dollar</span>(<span class="st">`</span><span class="at">Total Salary</span><span class="st">`</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">datatable</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  eric_adams_data, </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">options =</span> <span class="fu">list</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">searching =</span> <span class="cn">FALSE</span>,  </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">paging =</span> <span class="cn">FALSE</span>,     </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">info =</span> <span class="cn">FALSE</span>         </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-28dbc25ee83257d00227" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-28dbc25ee83257d00227">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"],[2014,2015,2016,2017,2018,2018,2019,2019,2020,2020,2021,2021,2022,2022,2022,2023,2023,2024,2024],["Borough President","Borough President","Borough President","Borough President","Borough President","Job Training Participant","Borough President","Job Training Participant","Borough President","Job Training Participant","Borough President","Police Officer","Borough President","Mayor","Police Officer","Mayor","Police Officer","Mayor","Police Officer"],["Borough President-Brooklyn","Borough President-Brooklyn","Borough President-Brooklyn","Borough President-Brooklyn","Borough President-Brooklyn","Dept Of Parks &amp; Recreation","Borough President-Brooklyn","Dept Of Parks &amp; Recreation","Borough President-Brooklyn","Dept Of Parks &amp; Recreation","Borough President-Brooklyn","Police Department","Borough President-Brooklyn","Office Of The Mayor","Police Department","Office Of The Mayor","Police Department","Office Of The Mayor","Police Department"],["$72,416","$159,562","$167,697","$185,557","$178,709","$7,192","$178,709","$6,079","$178,231","$14,520","$178,696","$26,897","$96,227","$120,088","$42,712","$258,041","$45,006","$257,361","$74,132"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Fiscal Year<\/th>\n      <th>Position<\/th>\n      <th>Agency<\/th>\n      <th>Total Salary<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"searching":false,"paging":false,"info":false,"columnDefs":[{"className":"dt-right","targets":1},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Fiscal Year","targets":1},{"name":"Position","targets":2},{"name":"Agency","targets":3},{"name":"Total Salary","targets":4}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p><strong>Calculating total compensation</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>payroll_cleaned <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_compensation =</span> <span class="fu">case_when</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>      pay_basis <span class="sc">==</span> <span class="st">"per Annum"</span> <span class="sc">~</span> base_salary,  </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>      pay_basis <span class="sc">==</span> <span class="st">"per Hour"</span> <span class="sc">~</span> (regular_hours <span class="sc">*</span> base_salary) <span class="sc">+</span> (ot_hours <span class="sc">*</span> base_salary <span class="sc">*</span> <span class="fl">1.5</span>),  <span class="co"># Hourly Employees</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>      pay_basis <span class="sc">==</span> <span class="st">"per Day"</span> <span class="sc">&amp;</span> title_description <span class="sc">==</span> <span class="st">"Adjunct Lecturer"</span> <span class="sc">~</span> (regular_hours <span class="sc">/</span> <span class="fl">1.5</span>) <span class="sc">*</span> base_salary,  <span class="co"># Adjunct Lecturers</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>      pay_basis <span class="sc">==</span> <span class="st">"per Day"</span> <span class="sc">~</span> (regular_hours <span class="sc">/</span> <span class="fl">7.5</span>) <span class="sc">*</span> base_salary,  </span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_real_</span>  </span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(payroll_cleaned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 6,225,611
+Columns: 18
+$ fiscal_year                &lt;dbl&gt; 2024, 2024, 2024, 2024, 2024, 2024, 2024, 2…
+$ payroll_number             &lt;dbl&gt; 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67,…
+$ agency_name                &lt;chr&gt; "Admin For Children's Svcs", "Admin For Chi…
+$ last_name                  &lt;chr&gt; "Faye Fall", "Kilgore", "Wisdom", "Miller",…
+$ first_name                 &lt;chr&gt; "Sokhna", "Orlantha", "Cherise", "Moya-Gaye…
+$ mid_init                   &lt;chr&gt; "M", "B", "M", "S", "M", "L", "O", NA, "N",…
+$ agency_start_date          &lt;dttm&gt; 2023-11-20, 2023-08-28, 2022-10-24, 2023-0…
+$ work_location_borough      &lt;chr&gt; "Bronx", "Brooklyn", "Manhattan", "Manhatta…
+$ title_description          &lt;chr&gt; "Child Protective Specialist", "Child Prote…
+$ leave_status_as_of_june_30 &lt;chr&gt; "Active", "Active", "On Leave", "On Leave",…
+$ base_salary                &lt;dbl&gt; 62043, 62043, 43144, 62043, 60236, 62043, 6…
+$ pay_basis                  &lt;chr&gt; "per Annum", "per Annum", "per Annum", "per…
+$ regular_hours              &lt;dbl&gt; 1050.00, 1470.00, 1251.50, 1400.75, 700.00,…
+$ regular_gross_paid         &lt;dbl&gt; 31267.96, 44660.96, 28649.20, 44515.43, 221…
+$ ot_hours                   &lt;dbl&gt; 12.00, 99.75, 30.00, 44.75, 53.00, 146.00, …
+$ total_ot_paid              &lt;dbl&gt; 425.00, 3859.84, 802.42, 1476.98, 1933.33, …
+$ total_other_pay            &lt;dbl&gt; 78.04, 78.14, 78.26, 78.37, 78.47, 78.86, 7…
+$ total_compensation         &lt;dbl&gt; 62043, 62043, 43144, 62043, 60236, 62043, 6…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(payroll_cleaned <span class="sc">%&gt;%</span> <span class="fu">select</span>(first_name, last_name, pay_basis, base_salary, regular_hours, ot_hours, total_compensation))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+  first_name last_name pay_basis base_salary regular_hours ot_hours
+  &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;           &lt;dbl&gt;         &lt;dbl&gt;    &lt;dbl&gt;
+1 Sokhna     Faye Fall per Annum       62043         1050      12  
+2 Orlantha   Kilgore   per Annum       62043         1470      99.8
+3 Cherise    Wisdom    per Annum       43144         1252.     30  
+4 Moya-Gaye  Miller    per Annum       62043         1401.     44.8
+5 Yashika    Bradley   per Annum       60236          700      53  
+6 Jennifer   Maurino   per Annum       62043         1470     146  
+# ℹ 1 more variable: total_compensation &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p><strong>Filtering Eric Adam’s records</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>eric_adams_data <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(first_name <span class="sc">==</span> <span class="st">"Eric"</span> <span class="sc">&amp;</span> last_name <span class="sc">==</span> <span class="st">"Adams"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, title_description, agency_name, total_compensation) <span class="sc">%&gt;%</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(fiscal_year)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(eric_adams_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  fiscal_year title_description        agency_name            total_compensation
+        &lt;dbl&gt; &lt;chr&gt;                    &lt;chr&gt;                               &lt;dbl&gt;
+1        2014 Borough President        Borough President-Bro…            160000 
+2        2015 Borough President        Borough President-Bro…            160000 
+3        2016 Borough President        Borough President-Bro…            179200 
+4        2017 Borough President        Borough President-Bro…            179200 
+5        2018 Borough President        Borough President-Bro…            179200 
+6        2018 Job Training Participant Dept Of Parks &amp; Recre…              7354.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>eric_adams_data <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(first_name <span class="sc">==</span> <span class="st">"Eric"</span>, last_name <span class="sc">==</span> <span class="st">"Adams"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, title_description, agency_name, total_compensation) <span class="sc">%&gt;%</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(fiscal_year)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>eric_adams_data <span class="ot">&lt;-</span> eric_adams_data <span class="sc">%&gt;%</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_compensation =</span> <span class="fu">dollar</span>(total_compensation))</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="fu">datatable</span>(</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  eric_adams_data,</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">options =</span> <span class="fu">list</span>(<span class="at">searching =</span> <span class="cn">FALSE</span>, <span class="at">paging =</span> <span class="cn">FALSE</span>, <span class="at">info =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-2faa6d133dc78cfd1a26" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-2faa6d133dc78cfd1a26">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"],[2014,2015,2016,2017,2018,2018,2019,2019,2020,2020,2021,2021,2022,2022,2022,2023,2023,2024,2024],["Borough President","Borough President","Borough President","Borough President","Borough President","Job Training Participant","Borough President","Job Training Participant","Borough President","Job Training Participant","Borough President","Police Officer","Borough President","Mayor","Police Officer","Mayor","Police Officer","Mayor","Police Officer"],["Borough President-Brooklyn","Borough President-Brooklyn","Borough President-Brooklyn","Borough President-Brooklyn","Borough President-Brooklyn","Dept Of Parks &amp; Recreation","Borough President-Brooklyn","Dept Of Parks &amp; Recreation","Borough President-Brooklyn","Dept Of Parks &amp; Recreation","Borough President-Brooklyn","Police Department","Borough President-Brooklyn","Office Of The Mayor","Police Department","Office Of The Mayor","Police Department","Office Of The Mayor","Police Department"],["$160,000","$160,000","$179,200","$179,200","$179,200","$7,354","$179,200","$5,405","$179,200","$15,022","$179,200","$42,500","$179,200","$258,750","$45,000","$258,750","$54,790","$258,750","$58,041"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>fiscal_year<\/th>\n      <th>title_description<\/th>\n      <th>agency_name<\/th>\n      <th>total_compensation<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"searching":false,"paging":false,"info":false,"columnDefs":[{"className":"dt-right","targets":1},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"fiscal_year","targets":1},{"name":"title_description","targets":2},{"name":"agency_name","targets":3},{"name":"total_compensation","targets":4}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p><strong>Task4 Q1 - Finding the Job title with highest base pay rate</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>highest_paid_job <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(base_salary) <span class="sc">&amp;</span> base_salary <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(title_description) <span class="sc">%&gt;%</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">max_base_salary =</span> <span class="fu">max</span>(base_salary, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span>  </span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(max_base_salary)) <span class="sc">%&gt;%</span>  </span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)  </span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>highest_paid_job</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  title_description max_base_salary
+  &lt;chr&gt;                       &lt;dbl&gt;
+1 Chair                      414707</code></pre>
+</div>
+</div>
+<p><strong>Task4 Q2 - Finding the Individual with the Highest Total Payroll</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>highest_paid_individual <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(total_compensation) <span class="sc">&amp;</span> total_compensation <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, first_name, last_name, total_compensation) <span class="sc">%&gt;%</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_compensation)) <span class="sc">%&gt;%</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)  </span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>highest_paid_individual</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+  fiscal_year first_name last_name total_compensation
+        &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;                  &lt;dbl&gt;
+1        2022 Gregory    Russ                  414707</code></pre>
+</div>
+</div>
+<p><strong>Task4 Q3 - Finding the Individual Who Worked the Most Overtime Hours</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>most_overtime_individual <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ot_hours) <span class="sc">&amp;</span> ot_hours <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(first_name, last_name, fiscal_year, ot_hours) <span class="sc">%&gt;%</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(ot_hours)) <span class="sc">%&gt;%</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)  </span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>most_overtime_individual</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+  first_name last_name   fiscal_year ot_hours
+  &lt;chr&gt;      &lt;chr&gt;             &lt;dbl&gt;    &lt;dbl&gt;
+1 James      Internicola        2022    3693.</code></pre>
+</div>
+</div>
+<p><strong>Task4 Q4 -Finding the Agency with the Highest Average Total Annual Payroll</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>highest_avg_pay_agency <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(total_compensation)) <span class="sc">%&gt;%</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(agency_name) <span class="sc">%&gt;%</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">avg_total_pay =</span> <span class="fu">mean</span>(total_compensation, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(avg_total_pay)) <span class="sc">%&gt;%</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)  </span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>highest_avg_pay_agency</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  agency_name             avg_total_pay
+  &lt;chr&gt;                           &lt;dbl&gt;
+1 Office Of Racial Equity       151093.</code></pre>
+</div>
+</div>
+<p><strong>Task 4 Q5 - Finding agency with the most employees on payroll in each year</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>most_employees_per_year <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fiscal_year, agency_name) <span class="sc">%&gt;%</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">employee_count =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(fiscal_year, <span class="fu">desc</span>(employee_count)) <span class="sc">%&gt;%</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)  </span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>most_employees_per_year</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 11 × 3
+# Groups:   fiscal_year [11]
+   fiscal_year agency_name            employee_count
+         &lt;dbl&gt; &lt;chr&gt;                           &lt;int&gt;
+ 1        2014 Dept Of Ed Pedagogical         100589
+ 2        2015 Dept Of Ed Pedagogical         111857
+ 3        2016 Dept Of Ed Pedagogical         106263
+ 4        2017 Dept Of Ed Pedagogical         104629
+ 5        2018 Dept Of Ed Pedagogical         107956
+ 6        2019 Dept Of Ed Pedagogical         112067
+ 7        2020 Dept Of Ed Pedagogical         114999
+ 8        2021 Dept Of Ed Pedagogical         113523
+ 9        2022 Dept Of Ed Pedagogical         120453
+10        2023 Dept Of Ed Pedagogical         106882
+11        2024 Dept Of Ed Pedagogical         108209</code></pre>
+</div>
+</div>
+<p><strong>Task4 Q6 - Finding agency with the highest overtime usage compared to regular hours</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>overtime_usage <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(agency_name) <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_regular_hours =</span> <span class="fu">sum</span>(regular_hours, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_ot_hours =</span> <span class="fu">sum</span>(ot_hours, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ot_ratio =</span> total_ot_hours <span class="sc">/</span> total_regular_hours  </span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(ot_ratio)) <span class="sc">%&gt;%</span>  </span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)  </span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>overtime_usage</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+  agency_name       total_regular_hours total_ot_hours ot_ratio
+  &lt;chr&gt;                           &lt;dbl&gt;          &lt;dbl&gt;    &lt;dbl&gt;
+1 Board Of Election           15339960.       3062029.    0.200</code></pre>
+</div>
+</div>
+<p><strong>Task4 Q7 - Finding the average salary of employees who work outside the five boroughs</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>avg_salary_outside_nyc <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>work_location_borough <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Manhattan"</span>, <span class="st">"Brooklyn"</span>, <span class="st">"Queens"</span>, <span class="st">"Bronx"</span>, <span class="st">"Staten Island"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">average_salary =</span> <span class="fu">mean</span>(base_salary, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>avg_salary_outside_nyc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  average_salary
+           &lt;dbl&gt;
+1         53479.</code></pre>
+</div>
+</div>
+<p><strong>Task4 Q8 - Calculating city’s aggregate payroll grown over the past 10 years</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>payroll_growth <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_payroll =</span> <span class="fu">sum</span>(total_compensation, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(fiscal_year)  </span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>payroll_growth</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 11 × 2
+   fiscal_year total_payroll
+         &lt;dbl&gt;         &lt;dbl&gt;
+ 1        2014  20921749184.
+ 2        2015  23638923757.
+ 3        2016  24622274711.
+ 4        2017  25196303601.
+ 5        2018  25919905007.
+ 6        2019  27580761532.
+ 7        2020  28872884557.
+ 8        2021  28379441739.
+ 9        2022  30843961664.
+10        2023  29507791202.
+11        2024  30278751578.</code></pre>
+</div>
+</div>
+<p><strong>Calculating Mayor’s Salary for Each Fiscal Year</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>mayor_salary <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(title_description <span class="sc">==</span> <span class="st">"Mayor"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, total_compensation) <span class="sc">%&gt;%</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>()</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>mayor_salary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 2
+   fiscal_year total_compensation
+         &lt;dbl&gt;              &lt;dbl&gt;
+ 1        2024             258750
+ 2        2023             258750
+ 3        2022             258750
+ 4        2021             258750
+ 5        2020             258750
+ 6        2019             258750
+ 7        2018             258750
+ 8        2017             225000
+ 9        2016             225000
+10        2015             225000
+11        2014             225000
+12        2014                  1</code></pre>
+</div>
+</div>
+<p><strong>Finding employees who earn more than mayor</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>highest_paid_individual <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total_compensation <span class="sc">==</span> <span class="fu">max</span>(total_compensation, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(first_name, last_name, fiscal_year, title_description, agency_name, total_compensation)</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>highest_paid_individual</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 6
+  first_name last_name fiscal_year title_description agency_name          
+  &lt;chr&gt;      &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;             &lt;chr&gt;                
+1 Gregory    Russ             2022 Chair             Nyc Housing Authority
+2 Gregory    Russ             2021 Chair             Nyc Housing Authority
+3 Gregory    Russ             2020 Chair             Nyc Housing Authority
+# ℹ 1 more variable: total_compensation &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p><strong>Including agency_name column in highest_paid_individual dataset</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>highest_paid_individual <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total_compensation <span class="sc">==</span> <span class="fu">max</span>(total_compensation, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(first_name, last_name, fiscal_year, title_description, agency_name, total_compensation)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Comparing high earning employees with mayor’s salary</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>capped_salaries <span class="ot">&lt;-</span> highest_paid_individual <span class="sc">%&gt;%</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(mayor_salary, <span class="at">by =</span> <span class="st">"fiscal_year"</span>, <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">"_employee"</span>, <span class="st">"_mayor"</span>)) <span class="sc">%&gt;%</span>  </span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">capped_compensation =</span> <span class="fu">pmin</span>(total_compensation_employee, total_compensation_mayor),  </span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings =</span> total_compensation_employee <span class="sc">-</span> capped_compensation  </span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Calculating total savings among all affected employees</span></span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>total_savings <span class="ot">&lt;-</span> <span class="fu">sum</span>(capped_salaries<span class="sc">$</span>savings, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">employees_affected =</span> capped_salaries,  </span>
+<span id="cb52-15"><a href="#cb52-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">total_amount_saved =</span> total_savings  </span>
+<span id="cb52-16"><a href="#cb52-16" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$employees_affected
+# A tibble: 3 × 9
+  first_name last_name fiscal_year title_description agency_name          
+  &lt;chr&gt;      &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;             &lt;chr&gt;                
+1 Gregory    Russ             2022 Chair             Nyc Housing Authority
+2 Gregory    Russ             2021 Chair             Nyc Housing Authority
+3 Gregory    Russ             2020 Chair             Nyc Housing Authority
+# ℹ 4 more variables: total_compensation_employee &lt;dbl&gt;,
+#   total_compensation_mayor &lt;dbl&gt;, capped_compensation &lt;dbl&gt;, savings &lt;dbl&gt;
+
+$total_amount_saved
+[1] 467871</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>affected_agencies <span class="ot">&lt;-</span> highest_paid_individual <span class="sc">%&gt;%</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(agency_name, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>affected_job_titles <span class="ot">&lt;-</span> highest_paid_individual <span class="sc">%&gt;%</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(title_description, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(affected_agencies, affected_job_titles)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+# A tibble: 1 × 2
+  agency_name               n
+  &lt;chr&gt;                 &lt;int&gt;
+1 Nyc Housing Authority     3
+
+[[2]]
+# A tibble: 1 × 2
+  title_description     n
+  &lt;chr&gt;             &lt;int&gt;
+1 Chair                 3</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Compute total overtime hours worked per agency and job title</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>overtime_usage <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(agency_name, title_description) <span class="sc">%&gt;%</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_overtime_hours =</span> <span class="fu">sum</span>(ot_hours, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total_overtime_hours <span class="sc">&gt;</span> <span class="dv">0</span>)  <span class="co"># Keep only roles with overtime usage</span></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Estimate full-time employees needed to replace overtime</span></span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming a full-time employee works 2000 hours per year</span></span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>overtime_usage <span class="ot">&lt;-</span> overtime_usage <span class="sc">%&gt;%</span></span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">full_time_replacements =</span> total_overtime_hours <span class="sc">/</span> <span class="dv">2000</span>)</span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: Calculate savings by converting overtime hours to regular hours</span></span>
+<span id="cb56-13"><a href="#cb56-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Regular pay is base_salary per hour, overtime is paid at 1.5x</span></span>
+<span id="cb56-14"><a href="#cb56-14" aria-hidden="true" tabindex="-1"></a>savings_analysis <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb56-15"><a href="#cb56-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(agency_name, title_description) <span class="sc">%&gt;%</span></span>
+<span id="cb56-16"><a href="#cb56-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb56-17"><a href="#cb56-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_base_salary =</span> <span class="fu">mean</span>(base_salary, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb56-18"><a href="#cb56-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_overtime_hours =</span> <span class="fu">sum</span>(ot_hours, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb56-19"><a href="#cb56-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb56-20"><a href="#cb56-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb56-21"><a href="#cb56-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total_overtime_hours <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb56-22"><a href="#cb56-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb56-23"><a href="#cb56-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">overtime_cost =</span> total_overtime_hours <span class="sc">*</span> avg_base_salary <span class="sc">*</span> <span class="fl">1.5</span>,  </span>
+<span id="cb56-24"><a href="#cb56-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">regular_cost =</span> (total_overtime_hours <span class="sc">/</span> <span class="dv">2000</span>) <span class="sc">*</span> avg_base_salary <span class="sc">*</span> <span class="dv">2000</span>,  </span>
+<span id="cb56-25"><a href="#cb56-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings =</span> overtime_cost <span class="sc">-</span> regular_cost  </span>
+<span id="cb56-26"><a href="#cb56-26" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb56-27"><a href="#cb56-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-28"><a href="#cb56-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-29"><a href="#cb56-29" aria-hidden="true" tabindex="-1"></a>top_savings_agencies <span class="ot">&lt;-</span> savings_analysis <span class="sc">%&gt;%</span></span>
+<span id="cb56-30"><a href="#cb56-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(agency_name) <span class="sc">%&gt;%</span></span>
+<span id="cb56-31"><a href="#cb56-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_savings =</span> <span class="fu">sum</span>(savings, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb56-32"><a href="#cb56-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_savings)) <span class="sc">%&gt;%</span></span>
+<span id="cb56-33"><a href="#cb56-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)  </span>
+<span id="cb56-34"><a href="#cb56-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-35"><a href="#cb56-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-36"><a href="#cb56-36" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb56-37"><a href="#cb56-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">overtime_usage =</span> <span class="fu">head</span>(overtime_usage, <span class="dv">10</span>),</span>
+<span id="cb56-38"><a href="#cb56-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">savings_analysis =</span> <span class="fu">head</span>(savings_analysis, <span class="dv">10</span>),</span>
+<span id="cb56-39"><a href="#cb56-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">top_savings_agencies =</span> top_savings_agencies</span>
+<span id="cb56-40"><a href="#cb56-40" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$overtime_usage
+# A tibble: 10 × 4
+   agency_name     title_description total_overtime_hours full_time_replacements
+   &lt;chr&gt;           &lt;chr&gt;                            &lt;dbl&gt;                  &lt;dbl&gt;
+ 1 Admin For Chil… *Attorney At Law                 674.                  0.337 
+ 2 Admin For Chil… *Certified Datab…                413.                  0.207 
+ 3 Admin For Chil… *Certified Local…                442.                  0.221 
+ 4 Admin For Chil… *Cook                           9791.                  4.90  
+ 5 Admin For Chil… *Custodial Assis…               3688                   1.84  
+ 6 Admin For Chil… *Senior Cook                    6210.                  3.11  
+ 7 Admin For Chil… Accountant                        94.5                 0.0472
+ 8 Admin For Chil… Adm Manager-Non-…              28855.                 14.4   
+ 9 Admin For Chil… Adm Manager-Non-…              16812.                  8.41  
+10 Admin For Chil… Admin Community …              18898.                  9.45  
+
+$savings_analysis
+# A tibble: 10 × 7
+   agency_name            title_description avg_base_salary total_overtime_hours
+   &lt;chr&gt;                  &lt;chr&gt;                       &lt;dbl&gt;                &lt;dbl&gt;
+ 1 Admin For Children's … *Attorney At Law           95236.                674. 
+ 2 Admin For Children's … *Certified Datab…         111355.                413. 
+ 3 Admin For Children's … *Certified Local…          97169                 442. 
+ 4 Admin For Children's … *Cook                      40320.               9791. 
+ 5 Admin For Children's … *Custodial Assis…          38472.               3688  
+ 6 Admin For Children's … *Senior Cook               43749.               6210. 
+ 7 Admin For Children's … Accountant                 65091.                 94.5
+ 8 Admin For Children's … Adm Manager-Non-…          79729.              28855. 
+ 9 Admin For Children's … Adm Manager-Non-…          69816.              16812. 
+10 Admin For Children's … Admin Community …          86126.              18898. 
+# ℹ 3 more variables: overtime_cost &lt;dbl&gt;, regular_cost &lt;dbl&gt;, savings &lt;dbl&gt;
+
+$top_savings_agencies
+# A tibble: 10 × 2
+   agency_name                    total_savings
+   &lt;chr&gt;                                  &lt;dbl&gt;
+ 1 Police Department                    5.44e12
+ 2 Fire Department                      2.77e12
+ 3 Department Of Correction             1.54e12
+ 4 Department Of Sanitation             1.11e12
+ 5 Nyc Housing Authority                3.59e11
+ 6 Hra/Dept Of Social Services          3.57e11
+ 7 Admin For Children's Svcs            3.08e11
+ 8 Department Of Transportation         2.62e11
+ 9 Dept Of Environment Protection       1.63e11
+10 Dept. Of Homeless Services           1.07e11</code></pre>
+</div>
+</div>
+<p>Summary</p>
+<p>Our analysis of city payroll data reveals that high overtime costs, especially in the Police Department and Fire Department, make up a significant portion of overall expenses. Shifting overtime hours to full-time positions could lead to major savings, with the Police Department alone potentially saving around $5.44 trillion. Other agencies, such as the Department of Corrections, NYC Housing Authority, and HRA, also rely heavily on overtime, which could be reduced through smarter hiring strategies.</p>
+<p><strong>Recommendations</strong></p>
+<p>Some recommendations are :</p>
+<ol type="1">
+<li><p>Strategic Workforce expansion</p></li>
+<li><p>Overtime Management and Policy reform</p></li>
+<li><p>Comprehensive cost-benefit assessment</p></li>
+<li><p>Ongoing payroll and efficiency monitoring</p></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>overtime_by_job <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(agency_name, title_description) <span class="sc">%&gt;%</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_ot_hours =</span> <span class="fu">sum</span>(ot_hours, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_ot_hours))</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(overtime_by_job, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 3
+   agency_name              title_description         total_ot_hours
+   &lt;chr&gt;                    &lt;chr&gt;                              &lt;dbl&gt;
+ 1 Police Department        Police Officer                 62139879.
+ 2 Fire Department          Firefighter                    43536213.
+ 3 Department Of Correction Correction Officer             34092745.
+ 4 Department Of Sanitation Sanitation Worker              23098266.
+ 5 Police Department        School Safety Agent            15964805.
+ 6 Police Department        P.o. Da Det Gr3                15179326.
+ 7 Nyc Housing Authority    Caretaker                       9439229.
+ 8 Fire Department          Lieutenant                      7607797.
+ 9 Police Department        Sergeant-                       7545577.
+10 Police Department        Traffic Enforcement Agent       7118475.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>overtime_replacement <span class="ot">&lt;-</span> overtime_by_job <span class="sc">%&gt;%</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">full_time_needed =</span> (total_ot_hours <span class="sc">/</span> <span class="dv">2080</span>) <span class="sc">*</span> <span class="fl">1.5</span>)</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(overtime_replacement, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   agency_name              title_description    total_ot_hours full_time_needed
+   &lt;chr&gt;                    &lt;chr&gt;                         &lt;dbl&gt;            &lt;dbl&gt;
+ 1 Police Department        Police Officer            62139879.           44812.
+ 2 Fire Department          Firefighter               43536213.           31396.
+ 3 Department Of Correction Correction Officer        34092745.           24586.
+ 4 Department Of Sanitation Sanitation Worker         23098266.           16657.
+ 5 Police Department        School Safety Agent       15964805.           11513.
+ 6 Police Department        P.o. Da Det Gr3           15179326.           10947.
+ 7 Nyc Housing Authority    Caretaker                  9439229.            6807.
+ 8 Fire Department          Lieutenant                 7607797.            5486.
+ 9 Police Department        Sergeant-                  7545577.            5442.
+10 Police Department        Traffic Enforcement…       7118475.            5134.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>overtime_savings <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(agency_name, title_description) <span class="sc">%&gt;%</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_ot_hours =</span> <span class="fu">sum</span>(ot_hours, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_hourly_wage =</span> <span class="fu">mean</span>(base_salary <span class="sc">/</span> <span class="dv">2080</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),  </span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">ot_cost =</span> total_ot_hours <span class="sc">*</span> avg_hourly_wage <span class="sc">*</span> <span class="fl">1.5</span>,  </span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">reg_cost =</span> total_ot_hours <span class="sc">*</span> avg_hourly_wage,  </span>
+<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings =</span> ot_cost <span class="sc">-</span> reg_cost  </span>
+<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(savings))</span>
+<span id="cb62-14"><a href="#cb62-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-15"><a href="#cb62-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-16"><a href="#cb62-16" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(overtime_savings, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 7
+   agency_name title_description total_ot_hours avg_hourly_wage ot_cost reg_cost
+   &lt;chr&gt;       &lt;chr&gt;                      &lt;dbl&gt;           &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+ 1 Police Dep… Police Officer         62139879.            34.1  3.18e9   2.12e9
+ 2 Fire Depar… Firefighter            43536213.            37.0  2.41e9   1.61e9
+ 3 Department… Correction Offic…      34092745.            34.6  1.77e9   1.18e9
+ 4 Department… Sanitation Worker      23098266.            33.5  1.16e9   7.73e8
+ 5 Police Dep… P.o. Da Det Gr3        15179326.            46.6  1.06e9   7.07e8
+ 6 Police Dep… Sergeant-               7545577.            51.1  5.78e8   3.86e8
+ 7 Fire Depar… Lieutenant              7607797.            50.2  5.73e8   3.82e8
+ 8 Police Dep… School Safety Ag…      15964805.            20.6  4.92e8   3.28e8
+ 9 Police Dep… Lieutenant              4796750.            59.3  4.26e8   2.84e8
+10 Department… Captain                 4578674.            48.3  3.32e8   2.21e8
+# ℹ 1 more variable: savings &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p><strong>Calculating savings for each agency</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>agency_savings <span class="ot">&lt;-</span> overtime_savings <span class="sc">%&gt;%</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(agency_name) <span class="sc">%&gt;%</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_savings =</span> <span class="fu">sum</span>(savings, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_savings))</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(agency_savings, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 2
+   agency_name                    total_savings
+   &lt;chr&gt;                                  &lt;dbl&gt;
+ 1 Police Department                2615708191.
+ 2 Fire Department                  1333482940.
+ 3 Department Of Correction          741593209.
+ 4 Department Of Sanitation          535014906.
+ 5 Nyc Housing Authority             172575977.
+ 6 Hra/Dept Of Social Services       171591017.
+ 7 Admin For Children's Svcs         148044480.
+ 8 Department Of Transportation      126130646.
+ 9 Dept Of Environment Protection     78524051.
+10 Dept. Of Homeless Services         51569931.</code></pre>
+</div>
+</div>
+<p><strong>Calculating estimated savings</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>total_savings <span class="ot">&lt;-</span> <span class="fu">sum</span>(overtime_savings<span class="sc">$</span>savings, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>total_savings</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6324255339</code></pre>
+</div>
+</div>
+<section id="new-policy-recommendation" class="level2">
+<h2 class="anchored" data-anchor-id="new-policy-recommendation"><strong>New Policy recommendation</strong></h2>
+<section id="replacing-some-full-time-roles-with-part-time-employees" class="level3">
+<h3 class="anchored" data-anchor-id="replacing-some-full-time-roles-with-part-time-employees"><strong>Replacing Some Full-Time Roles with Part-Time Employees</strong></h3>
+<p><strong>Identify job titles that could be converted to part-time roles</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>part_time_eligible_roles <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(regular_hours <span class="sc">==</span> <span class="dv">2080</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(title_description, agency_name) <span class="sc">%&gt;%</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">num_employees =</span> <span class="fu">n</span>(),</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_salary_weekly =</span> <span class="fu">mean</span>(base_salary <span class="sc">/</span> <span class="dv">52</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),  </span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb68-10"><a href="#cb68-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">full_time_cost =</span> num_employees <span class="sc">*</span> <span class="dv">1200</span>,  </span>
+<span id="cb68-11"><a href="#cb68-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">part_time_cost =</span> num_employees <span class="sc">*</span> <span class="dv">500</span> <span class="sc">*</span> <span class="dv">2</span>,  </span>
+<span id="cb68-12"><a href="#cb68-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings =</span> full_time_cost <span class="sc">-</span> part_time_cost</span>
+<span id="cb68-13"><a href="#cb68-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb68-14"><a href="#cb68-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(savings))  </span>
+<span id="cb68-15"><a href="#cb68-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-16"><a href="#cb68-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-17"><a href="#cb68-17" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(part_time_eligible_roles, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 7
+   title_description  agency_name num_employees avg_salary_weekly full_time_cost
+   &lt;chr&gt;              &lt;chr&gt;               &lt;int&gt;             &lt;dbl&gt;          &lt;dbl&gt;
+ 1 Police Officer     Police Dep…         98485             1468.      118182000
+ 2 Firefighter        Fire Depar…         35419             1600.       42502800
+ 3 Correction Officer Department…         29275             1594.       35130000
+ 4 Sanitation Worker  Department…         24514             1467.       29416800
+ 5 School Safety Age… Police Dep…         20326              920.       24391200
+ 6 Sergeant-          Police Dep…         17139             2053.       20566800
+ 7 P.o. Da Det Gr3    Police Dep…         15258             1987.       18309600
+ 8 Traffic Enforceme… Police Dep…         10423              875.       12507600
+ 9 Caretaker          Nyc Housin…         10327              837.       12392400
+10 Lieutenant         Fire Depar…          6602             2128.        7922400
+# ℹ 2 more variables: part_time_cost &lt;dbl&gt;, savings &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>total_savings <span class="ot">&lt;-</span> <span class="fu">sum</span>(part_time_eligible_roles<span class="sc">$</span>savings, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">top_roles_for_conversion =</span> <span class="fu">head</span>(part_time_eligible_roles, <span class="dv">10</span>),</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">total_potential_savings =</span> total_savings</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$top_roles_for_conversion
+# A tibble: 10 × 7
+   title_description  agency_name num_employees avg_salary_weekly full_time_cost
+   &lt;chr&gt;              &lt;chr&gt;               &lt;int&gt;             &lt;dbl&gt;          &lt;dbl&gt;
+ 1 Police Officer     Police Dep…         98485             1468.      118182000
+ 2 Firefighter        Fire Depar…         35419             1600.       42502800
+ 3 Correction Officer Department…         29275             1594.       35130000
+ 4 Sanitation Worker  Department…         24514             1467.       29416800
+ 5 School Safety Age… Police Dep…         20326              920.       24391200
+ 6 Sergeant-          Police Dep…         17139             2053.       20566800
+ 7 P.o. Da Det Gr3    Police Dep…         15258             1987.       18309600
+ 8 Traffic Enforceme… Police Dep…         10423              875.       12507600
+ 9 Caretaker          Nyc Housin…         10327              837.       12392400
+10 Lieutenant         Fire Depar…          6602             2128.        7922400
+# ℹ 2 more variables: part_time_cost &lt;dbl&gt;, savings &lt;dbl&gt;
+
+$total_potential_savings
+[1] 76130200</code></pre>
+</div>
+</div>
+<p><strong>Calculate part-time salary and cost savings</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>full_time_roles <span class="ot">&lt;-</span> payroll_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(pay_basis <span class="sc">==</span> <span class="st">"per Annum"</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(title_description, agency_name) <span class="sc">%&gt;%</span></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_salary =</span> <span class="fu">mean</span>(base_salary, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),  </span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">num_employees =</span> <span class="fu">n</span>(),</span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-10"><a href="#cb72-10" aria-hidden="true" tabindex="-1"></a>part_time_conversion <span class="ot">&lt;-</span> full_time_roles <span class="sc">%&gt;%</span></span>
+<span id="cb72-11"><a href="#cb72-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb72-12"><a href="#cb72-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">part_time_salary =</span> avg_salary <span class="sc">*</span> <span class="fl">0.6</span>,  </span>
+<span id="cb72-13"><a href="#cb72-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_full_time_cost =</span> avg_salary <span class="sc">*</span> num_employees,</span>
+<span id="cb72-14"><a href="#cb72-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_part_time_cost =</span> part_time_salary <span class="sc">*</span> num_employees,</span>
+<span id="cb72-15"><a href="#cb72-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings =</span> total_full_time_cost <span class="sc">-</span> total_part_time_cost</span>
+<span id="cb72-16"><a href="#cb72-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb72-17"><a href="#cb72-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-18"><a href="#cb72-18" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(part_time_conversion, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 8
+   title_description       agency_name avg_salary num_employees part_time_salary
+   &lt;chr&gt;                   &lt;chr&gt;            &lt;dbl&gt;         &lt;int&gt;            &lt;dbl&gt;
+ 1 * Attending Dentist     Dept Of He…    144040              1           86424 
+ 2 *Adm Dir Fleet Maint-M… Dept Of Ci…    118034              2           70820.
+ 3 *Adm Dir Fleet Mainten… Department…    134367.             5           80620.
+ 4 *Adm Dir Fleet Mainten… Department…    129158              1           77495.
+ 5 *Adm School Security M… Police Dep…     80937.            24           48562.
+ 6 *Admin Schl Secur Mgr-… Police Dep…    163670.             5           98202.
+ 7 *Administrative Attorn… Department…     90980              1           54588 
+ 8 *Administrative Attorn… Department…    211720.             7          127032.
+ 9 *Administrative Attorn… Nyc Housin…    130478.            10           78287.
+10 *Administrative Attorn… Police Dep…    170157              5          102094.
+# ℹ 3 more variables: total_full_time_cost &lt;dbl&gt;, total_part_time_cost &lt;dbl&gt;,
+#   savings &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="summary-of-the-new-policy" class="level2">
+<h2 class="anchored" data-anchor-id="summary-of-the-new-policy"><strong>Summary of the New Policy</strong></h2>
+<p>This policy examines potential savings from replacing some full-time positions with part-time employees. Assuming part-time workers clock 20 hours per week while full-timers work 40, with wages adjusted accordingly, the analysis highlights significant cost reductions. The findings suggest that shifting select roles to part-time could cut costs while maintaining efficiency. The greatest savings come from jobs with high employee counts and lower skill requirements, where part-time coverage is feasible.</p>
+</section>
+<section id="recommendations" class="level2">
+<h2 class="anchored" data-anchor-id="recommendations"><strong>Recommendations</strong></h2>
+<ul>
+<li><p>Focus on Suitable Roles – Prioritize administrative, customer service, and lower-skilled jobs that can be handled part-time without impacting productivity.</p></li>
+<li><p>Flexible Scheduling – Attract strong candidates by offering adaptable work hours and relevant benefits.</p></li>
+<li><p>Track Impact – Regularly assess productivity and cost savings to ensure the policy remains effective.</p></li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/devarshi2011\.github\.io\/STA9750-2025-SPRING\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

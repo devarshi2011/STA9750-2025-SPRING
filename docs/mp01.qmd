@@ -447,7 +447,7 @@ total_savings <- sum(overtime_savings$savings, na.rm = TRUE)
 total_savings
 ```
 
-##  **New Policy recommendation** 
+## **New Policy recommendation**
 
 ### **Replacing Some Full-Time Roles with Part-Time Employees**
 
@@ -485,6 +485,15 @@ list(
 **Calculate part-time salary and cost savings**
 
 ```{r}
+full_time_roles <- payroll_cleaned %>%
+  filter(pay_basis == "per Annum") %>%  
+  group_by(title_description, agency_name) %>%
+  summarise(
+    avg_salary = mean(base_salary, na.rm = TRUE),  
+    num_employees = n(),
+    .groups = "drop"
+  )
+
 part_time_conversion <- full_time_roles %>%
   mutate(
     part_time_salary = avg_salary * 0.6,  
@@ -494,14 +503,13 @@ part_time_conversion <- full_time_roles %>%
   )
 
 head(part_time_conversion, 10)
-
 ```
 
 ## **Summary of the New Policy**
 
 This policy examines potential savings from replacing some full-time positions with part-time employees. Assuming part-time workers clock 20 hours per week while full-timers work 40, with wages adjusted accordingly, the analysis highlights significant cost reductions. The findings suggest that shifting select roles to part-time could cut costs while maintaining efficiency. The greatest savings come from jobs with high employee counts and lower skill requirements, where part-time coverage is feasible.
 
-## **Recommendations** 
+## **Recommendations**
 
 -   Focus on Suitable Roles – Prioritize administrative, customer service, and lower-skilled jobs that can be handled part-time without impacting productivity.
 
