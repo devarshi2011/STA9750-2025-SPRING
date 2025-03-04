@@ -4,6 +4,9 @@ author: "Dev Lala"
 date: "`r Sys.Date()`"
 format: html
 editor: visual
+execute:
+  echo: false
+  warning: false
 ---
 
 ```{r}
