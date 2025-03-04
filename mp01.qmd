@@ -1,0 +1,510 @@
+---
+title: "NYC Payroll Analysis: Identifying Potential Savings"
+author: "Dev Lala"
+date: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(readr)
+
+payroll_data <- read_csv("data/mp01/nyc_payroll_export.csv")
+
+glimpse(payroll_data)
+
+head(payroll_data)
+library(tidyverse)
+library(stringr)
+```
+
+```{r}
+payroll_cleaned <- payroll_data %>%
+  mutate(
+    agency_name = str_to_title(agency_name),
+    last_name = str_to_title(last_name),
+    first_name = str_to_title(first_name),
+    work_location_borough = str_to_title(work_location_borough),
+    title_description = str_to_title(title_description),
+    leave_status_as_of_june_30 = str_to_title(leave_status_as_of_june_30)
+  )
+
+
+glimpse(payroll_cleaned)
+head(payroll_cleaned)
+```
+
+**Fixing Boroughs names**
+
+```{r}
+payroll_cleaned <- payroll_cleaned %>%
+  mutate(
+    work_location_borough = case_when(
+      
+      work_location_borough == "Richmond" ~ "Staten Island",
+      
+#Moving non-NYC locations into a column named "Other"
+      work_location_borough %in% c(
+        "Orange", "Westchester", "Sullivan", "Nassau", 
+        "Delaware", "Ulster", "Washington Dc", "Putnam", 
+        "Schoharie", "Dutchess", "Greene", "Albany"
+      ) ~ "Other",
+      
+      
+      TRUE ~ work_location_borough
+    )
+  )
+unique(payroll_cleaned$work_location_borough)
+
+write_csv(payroll_cleaned, "data/mp01/nyc_payroll_cleaned.csv")
+```
+
+```{r}
+library(dplyr) 
+library(DT)    
+library(scales)
+```
+
+```{r}
+eric_adams_data <- payroll_cleaned %>%
+  filter(
+    first_name == "Eric" & last_name == "Adams"  
+  ) %>%
+  select(fiscal_year, title_description, agency_name, regular_gross_paid) %>%
+  rename(
+    `Fiscal Year` = fiscal_year,
+    `Position` = title_description,
+    `Agency` = agency_name,
+    `Total Salary` = regular_gross_paid
+  ) %>%
+  arrange(`Fiscal Year`)  
+
+```
+
+```{r}
+eric_adams_data <- eric_adams_data %>%
+  mutate(`Total Salary` = dollar(`Total Salary`))
+```
+
+```{r}
+datatable(
+  eric_adams_data, 
+  options = list(
+    searching = FALSE,  
+    paging = FALSE,     
+    info = FALSE         
+  )
+)
+
+```
+
+**Calculating total compensation**
+
+```{r}
+payroll_cleaned <- payroll_cleaned %>%
+  mutate(
+    total_compensation = case_when(
+      pay_basis == "per Annum" ~ base_salary,  
+      pay_basis == "per Hour" ~ (regular_hours * base_salary) + (ot_hours * base_salary * 1.5),  # Hourly Employees
+      pay_basis == "per Day" & title_description == "Adjunct Lecturer" ~ (regular_hours / 1.5) * base_salary,  # Adjunct Lecturers
+      pay_basis == "per Day" ~ (regular_hours / 7.5) * base_salary,  
+      TRUE ~ NA_real_  
+    )
+  )
+
+glimpse(payroll_cleaned)
+head(payroll_cleaned %>% select(first_name, last_name, pay_basis, base_salary, regular_hours, ot_hours, total_compensation))
+
+      
+```
+
+**Filtering Eric Adam's records**
+
+```{r}
+eric_adams_data <- payroll_cleaned %>%
+  filter(first_name == "Eric" & last_name == "Adams") %>%
+  select(fiscal_year, title_description, agency_name, total_compensation) %>%
+  arrange(fiscal_year)
+
+head(eric_adams_data)
+
+```
+
+```{r}
+eric_adams_data <- payroll_cleaned %>%
+  filter(first_name == "Eric", last_name == "Adams") %>%
+  select(fiscal_year, title_description, agency_name, total_compensation) %>%
+  arrange(fiscal_year)
+
+library(scales)
+eric_adams_data <- eric_adams_data %>%
+  mutate(total_compensation = dollar(total_compensation))
+
+
+library(DT)
+datatable(
+  eric_adams_data,
+  options = list(searching = FALSE, paging = FALSE, info = FALSE)
+)
+
+```
+
+**Task4 Q1 - Finding the Job title with highest base pay rate**
+
+```{r}
+highest_paid_job <- payroll_cleaned %>%
+  filter(!is.na(base_salary) & base_salary > 0) %>%  
+  group_by(title_description) %>%
+  summarise(max_base_salary = max(base_salary, na.rm = TRUE)) %>%  
+  arrange(desc(max_base_salary)) %>%  
+  slice(1)  
+
+highest_paid_job
+
+```
+
+**Task4 Q2 - Finding the Individual with the Highest Total Payroll**
+
+```{r}
+highest_paid_individual <- payroll_cleaned %>%
+  filter(!is.na(total_compensation) & total_compensation > 0) %>%  
+  select(fiscal_year, first_name, last_name, total_compensation) %>%
+  arrange(desc(total_compensation)) %>%
+  slice(1)  
+
+highest_paid_individual
+
+```
+
+**Task4 Q3 - Finding the Individual Who Worked the Most Overtime Hours**
+
+```{r}
+most_overtime_individual <- payroll_cleaned %>%
+  filter(!is.na(ot_hours) & ot_hours > 0) %>%  
+  select(first_name, last_name, fiscal_year, ot_hours) %>%
+  arrange(desc(ot_hours)) %>%
+  slice(1)  
+
+
+most_overtime_individual
+
+
+```
+
+**Task4 Q4 -Finding the Agency with the Highest Average Total Annual Payroll**
+
+```{r}
+highest_avg_pay_agency <- payroll_cleaned %>%
+  filter(!is.na(total_compensation)) %>%
+  group_by(agency_name) %>%
+  summarise(avg_total_pay = mean(total_compensation, na.rm = TRUE)) %>%
+  arrange(desc(avg_total_pay)) %>%
+  slice(1)  
+
+highest_avg_pay_agency
+
+```
+
+**Task 4 Q5 - Finding agency with the most employees on payroll in each year**
+
+```{r}
+most_employees_per_year <- payroll_cleaned %>%
+  group_by(fiscal_year, agency_name) %>%
+  summarise(employee_count = n(), .groups = "drop") %>%
+  arrange(fiscal_year, desc(employee_count)) %>%
+  group_by(fiscal_year) %>%
+  slice(1)  
+
+most_employees_per_year
+
+```
+
+**Task4 Q6 - Finding agency with the highest overtime usage compared to regular hours**
+
+```{r}
+overtime_usage <- payroll_cleaned %>%
+  group_by(agency_name) %>%
+  summarise(
+    total_regular_hours = sum(regular_hours, na.rm = TRUE),
+    total_ot_hours = sum(ot_hours, na.rm = TRUE),
+    ot_ratio = total_ot_hours / total_regular_hours  
+  ) %>%
+  arrange(desc(ot_ratio)) %>%  
+  slice(1)  
+
+overtime_usage
+
+```
+
+**Task4 Q7 - Finding the average salary of employees who work outside the five boroughs**
+
+```{r}
+avg_salary_outside_nyc <- payroll_cleaned %>%
+  filter(!work_location_borough %in% c("Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island")) %>%
+  summarise(average_salary = mean(base_salary, na.rm = TRUE))
+
+avg_salary_outside_nyc
+
+```
+
+**Task4 Q8 - Calculating city’s aggregate payroll grown over the past 10 years**
+
+```{r}
+payroll_growth <- payroll_cleaned %>%
+  group_by(fiscal_year) %>%
+  summarise(total_payroll = sum(total_compensation, na.rm = TRUE)) %>%
+  arrange(fiscal_year)  
+
+
+payroll_growth
+
+```
+
+**Calculating Mayor's Salary for Each Fiscal Year**
+
+```{r}
+mayor_salary <- payroll_cleaned %>%
+  filter(title_description == "Mayor") %>%
+  select(fiscal_year, total_compensation) %>%
+  distinct()
+
+
+mayor_salary
+
+```
+
+**Finding employees who earn more than mayor**
+
+```{r}
+highest_paid_individual <- payroll_cleaned %>%
+  filter(total_compensation == max(total_compensation, na.rm = TRUE)) %>%
+  select(first_name, last_name, fiscal_year, title_description, agency_name, total_compensation)
+
+highest_paid_individual
+```
+
+**Including agency_name column in highest_paid_individual dataset**
+
+```{r}
+highest_paid_individual <- payroll_cleaned %>%
+  filter(total_compensation == max(total_compensation, na.rm = TRUE)) %>%
+  select(first_name, last_name, fiscal_year, title_description, agency_name, total_compensation)  
+
+```
+
+**Comparing high earning employees with mayor's salary**
+
+```{r}
+capped_salaries <- highest_paid_individual %>%
+  left_join(mayor_salary, by = "fiscal_year", suffix = c("_employee", "_mayor")) %>%  
+  
+  mutate(
+    capped_compensation = pmin(total_compensation_employee, total_compensation_mayor),  
+    savings = total_compensation_employee - capped_compensation  
+  )
+
+#Calculating total savings among all affected employees
+total_savings <- sum(capped_salaries$savings, na.rm = TRUE)
+
+
+list(
+  employees_affected = capped_salaries,  
+  total_amount_saved = total_savings  
+)
+```
+
+```{r}
+affected_agencies <- highest_paid_individual %>%
+  count(agency_name, sort = TRUE) %>%
+  head(10)
+
+affected_job_titles <- highest_paid_individual %>%
+  count(title_description, sort = TRUE) %>%
+  head(10)
+
+list(affected_agencies, affected_job_titles)
+```
+
+```{r}
+# Step 1: Compute total overtime hours worked per agency and job title
+overtime_usage <- payroll_cleaned %>%
+  group_by(agency_name, title_description) %>%
+  summarise(total_overtime_hours = sum(ot_hours, na.rm = TRUE), .groups = "drop") %>%
+  filter(total_overtime_hours > 0)  # Keep only roles with overtime usage
+
+# Step 2: Estimate full-time employees needed to replace overtime
+# Assuming a full-time employee works 2000 hours per year
+overtime_usage <- overtime_usage %>%
+  mutate(full_time_replacements = total_overtime_hours / 2000)
+
+# Step 3: Calculate savings by converting overtime hours to regular hours
+# Regular pay is base_salary per hour, overtime is paid at 1.5x
+savings_analysis <- payroll_cleaned %>%
+  group_by(agency_name, title_description) %>%
+  summarise(
+    avg_base_salary = mean(base_salary, na.rm = TRUE),
+    total_overtime_hours = sum(ot_hours, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  filter(total_overtime_hours > 0) %>%
+  mutate(
+    overtime_cost = total_overtime_hours * avg_base_salary * 1.5,  
+    regular_cost = (total_overtime_hours / 2000) * avg_base_salary * 2000,  
+    savings = overtime_cost - regular_cost  
+  )
+
+
+top_savings_agencies <- savings_analysis %>%
+  group_by(agency_name) %>%
+  summarise(total_savings = sum(savings, na.rm = TRUE), .groups = "drop") %>%
+  arrange(desc(total_savings)) %>%
+  head(10)  
+
+
+list(
+  overtime_usage = head(overtime_usage, 10),
+  savings_analysis = head(savings_analysis, 10),
+  top_savings_agencies = top_savings_agencies
+)
+
+```
+
+Summary
+
+Our analysis of city payroll data reveals that high overtime costs, especially in the Police Department and Fire Department, make up a significant portion of overall expenses. Shifting overtime hours to full-time positions could lead to major savings, with the Police Department alone potentially saving around \$5.44 trillion. Other agencies, such as the Department of Corrections, NYC Housing Authority, and HRA, also rely heavily on overtime, which could be reduced through smarter hiring strategies.
+
+**Recommendations**
+
+Some recommendations are :
+
+1.  Strategic Workforce expansion
+
+2.  Overtime Management and Policy reform
+
+3.  Comprehensive cost-benefit assessment
+
+4.  Ongoing payroll and efficiency monitoring
+
+```{r}
+overtime_by_job <- payroll_cleaned %>%
+  group_by(agency_name, title_description) %>%
+  summarise(total_ot_hours = sum(ot_hours, na.rm = TRUE), .groups = "drop") %>%
+  arrange(desc(total_ot_hours))
+
+head(overtime_by_job, 10)
+
+
+```
+
+```{r}
+overtime_replacement <- overtime_by_job %>%
+  mutate(full_time_needed = (total_ot_hours / 2080) * 1.5)
+
+
+head(overtime_replacement, 10)
+
+
+```
+
+```{r}
+overtime_savings <- payroll_cleaned %>%
+  group_by(agency_name, title_description) %>%
+  summarise(
+    total_ot_hours = sum(ot_hours, na.rm = TRUE),
+    avg_hourly_wage = mean(base_salary / 2080, na.rm = TRUE),  
+    .groups = "drop"
+  ) %>%
+  mutate(
+    ot_cost = total_ot_hours * avg_hourly_wage * 1.5,  
+    reg_cost = total_ot_hours * avg_hourly_wage,  
+    savings = ot_cost - reg_cost  
+  ) %>%
+  arrange(desc(savings))
+
+
+head(overtime_savings, 10)
+
+```
+
+**Calculating savings for each agency**
+
+```{r}
+agency_savings <- overtime_savings %>%
+  group_by(agency_name) %>%
+  summarise(total_savings = sum(savings, na.rm = TRUE), .groups = "drop") %>%
+  arrange(desc(total_savings))
+
+head(agency_savings, 10)
+
+```
+
+**Calculating estimated savings**
+
+```{r}
+total_savings <- sum(overtime_savings$savings, na.rm = TRUE)
+
+total_savings
+```
+
+##  **New Policy recommendation** 
+
+### **Replacing Some Full-Time Roles with Part-Time Employees**
+
+**Identify job titles that could be converted to part-time roles**
+
+```{r}
+part_time_eligible_roles <- payroll_cleaned %>%
+  filter(regular_hours == 2080) %>%  
+  group_by(title_description, agency_name) %>%
+  summarise(
+    num_employees = n(),
+    avg_salary_weekly = mean(base_salary / 52, na.rm = TRUE),  
+    .groups = "drop"
+  ) %>%
+  mutate(
+    full_time_cost = num_employees * 1200,  
+    part_time_cost = num_employees * 500 * 2,  
+    savings = full_time_cost - part_time_cost
+  ) %>%
+  arrange(desc(savings))  
+
+
+head(part_time_eligible_roles, 10)
+
+
+total_savings <- sum(part_time_eligible_roles$savings, na.rm = TRUE)
+
+
+list(
+  top_roles_for_conversion = head(part_time_eligible_roles, 10),
+  total_potential_savings = total_savings
+)
+```
+
+**Calculate part-time salary and cost savings**
+
+```{r}
+part_time_conversion <- full_time_roles %>%
+  mutate(
+    part_time_salary = avg_salary * 0.6,  
+    total_full_time_cost = avg_salary * num_employees,
+    total_part_time_cost = part_time_salary * num_employees,
+    savings = total_full_time_cost - total_part_time_cost
+  )
+
+head(part_time_conversion, 10)
+
+```
+
+## **Summary of the New Policy**
+
+This policy examines potential savings from replacing some full-time positions with part-time employees. Assuming part-time workers clock 20 hours per week while full-timers work 40, with wages adjusted accordingly, the analysis highlights significant cost reductions. The findings suggest that shifting select roles to part-time could cut costs while maintaining efficiency. The greatest savings come from jobs with high employee counts and lower skill requirements, where part-time coverage is feasible.
+
+## **Recommendations** 
+
+-   Focus on Suitable Roles – Prioritize administrative, customer service, and lower-skilled jobs that can be handled part-time without impacting productivity.
+
+-   Flexible Scheduling – Attract strong candidates by offering adaptable work hours and relevant benefits.
+
+-   Track Impact – Regularly assess productivity and cost savings to ensure the policy remains effective.
