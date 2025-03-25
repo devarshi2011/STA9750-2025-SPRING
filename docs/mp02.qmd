@@ -6,6 +6,8 @@ format:
   html:
     code-fold: true
     code-summary: "Show the code"
+    self-contained: true
+    toc: true
 editor: visual
 execute:
   engine: knitr
