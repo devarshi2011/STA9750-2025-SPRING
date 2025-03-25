@@ -30,7 +30,7 @@ This analysis evaluates public transit agencies to determine the most eco-friend
 
 -   **Insightful Presentation**: Create a press release highlighting the greenest transit agencies, supported by key statistics and findings.
 
-# **Data Acquisition**
+# **1. Data Acquisition**
 
 ```{r}
 library(httr2)
@@ -138,7 +138,7 @@ EIA_SEP_REPORT |>
     datatable()
 ```
 
-## **Initial Analysis of SEP Data**
+## **2. Initial Analysis of SEP Data**
 
 ```{r}
 ensure_package(readxl)
@@ -164,10 +164,10 @@ if(!file.exists(NTD_ENERGY_FILE)){
 NTD_ENERGY_RAW <- read_xlsx(NTD_ENERGY_FILE, guess_max = 5000, na = "-")
 ```
 
-#### 1. Which state has the most expensive retail electricity?
+#### 2.1 Which state has the most expensive retail electricity?
 
 ```{r}
-# Find the state with the highest electricity price
+#Finding the state with the highest electricity price
 library(dplyr) 
 library(scales)  
 library(DT)  
@@ -193,14 +193,14 @@ datatable(
 )
 ```
 
-#### 2. Which state has the ‘dirtiest’ electricity mix?
+#### 2.2 Which state has the ‘dirtiest’ electricity mix?
 
 ```{r}
 library(dplyr)  
 library(scales) 
 library(DT)  
 
-# Find the state with the 'dirtiest' electricity mix
+#Finding the state with the 'dirtiest' electricity mix
 dirtiest_state <- EIA_SEP_REPORT |> 
     arrange(desc(CO2_MWh)) |>  
     slice(1) |>  
@@ -222,10 +222,10 @@ datatable(
 )
 ```
 
-#### 3. On average, how many pounds of CO2 are emitted per MWh of electricity produced in the US? (Note that you will need to use a suitably *weighted* average here.)
+#### 2.3 On average, how many pounds of CO2 are emitted per MWh of electricity produced in the US? (Note that you will need to use a suitably *weighted* average here.)
 
 ```{r}
-# Calculate the weighted average of CO₂ emissions per MWh
+#Calculating the weighted average of CO₂ emissions per MWh
 library(dplyr)  
 library(scales)  
 library(DT)      
@@ -247,14 +247,14 @@ datatable(
 )
 ```
 
-#### 4. What is the rarest primary energy source in the US? What is the associated cost of electricity and where is it used?
+#### 2.4 What is the rarest primary energy source in the US? What is the associated cost of electricity and where is it used?
 
 ```{r}
 library(dplyr)
 library(scales)
 library(DT)
 
-# Count occurrences of each primary energy source
+#Counting occurrences of each primary energy source
 rarest_energy_source <- EIA_SEP_REPORT |> 
     count(primary_source, sort = TRUE) |>  
     slice(n()) |>  
@@ -291,10 +291,10 @@ datatable(
 )
 ```
 
-#### 5. My home state, Texas, has a reputation as being the home of “dirty fossil fuels” while NY has a reputation as a leader in clean energy. How many times cleaner is NY’s energy mix than that of Texas?
+#### 2.5 My home state, Texas, has a reputation as being the home of “dirty fossil fuels” while NY has a reputation as a leader in clean energy. How many times cleaner is NY’s energy mix than that of Texas?
 
 ```{r}
-# Filter data for New York and Texas
+#Filtering data for New York and Texas
 library(dplyr)
 library(scales)
 library(DT)
@@ -324,7 +324,7 @@ datatable(
 )
 ```
 
-## Basic Clean-up
+## 3. Basic Clean-up
 
 ```{r}
 ensure_package(tidyr)
@@ -384,7 +384,8 @@ NTD_ENERGY <- NTD_ENERGY |>
         Mode == "YR" ~ "Hybrid Rail",
         Mode == "SR" ~ "Streetcar",
         Mode == "F"  ~ "Ferry",
-        TRUE ~ "Unknown" # Assign "Unknown" to unidentified modes
+        TRUE ~ "Unknown" 
+        #Assigning "Unknown" to unidentified modes
     ))
 ```
 
@@ -422,15 +423,15 @@ NTD_SERVICE <- NTD_SERVICE_RAW |>
     filter(MILES > 0)
 ```
 
-### **Exploring the NTD Service Data**
+## **4. Exploring the NTD Service Data**
 
-#### 1. Which transit service has the most UPT annually?
+#### 4.1. Which transit service has the most UPT annually?
 
 ```{r}
 library(dplyr)
 library(DT)
 
-# Find the transit service with the most annual UPT
+#Finding the transit service with the most annual UPT
 most_upt_service <- NTD_SERVICE |> 
     arrange(desc(UPT)) |> 
     slice(1) |> 
@@ -446,13 +447,13 @@ datatable(
 )
 ```
 
-#### 2. What is the average trip length of a trip on MTA NYC?
+#### 4.2. What is the average trip length of a trip on MTA NYC?
 
 ```{r}
 library(dplyr)
 library(DT)
 
-# Calculate the average trip length for MTA in NYC
+#Calculating the average trip length for MTA in NYC
 mta_avg_trip_length <- NTD_SERVICE |> 
     filter(grepl("MTA", Agency) & City == "New York City") |> 
     summarize(`Average Trip Length (Miles per UPT)` = mean(MILES / UPT, na.rm = TRUE))
@@ -467,7 +468,7 @@ datatable(
 )
 ```
 
-#### 3. Which transit service in NYC has the *longest* average trip length?
+#### 4.3. Which transit service in NYC has the *longest* average trip length?
 
 ```{r}
 library(dplyr)
@@ -493,7 +494,7 @@ datatable(
 
 ```
 
-#### 4. Which state has the *fewest* total miles travelled by public transit?
+#### 4.4. Which state has the *fewest* total miles travelled by public transit?
 
 ```{r}
 library(dplyr)
@@ -515,7 +516,7 @@ datatable(
 )
 ```
 
-#### 5. Are all states represented in this data? If no, which ones are missing? The state.name and state.abb objects we used above may be useful here.
+#### 4.5. Are all states represented in this data? If no, which ones are missing? The state.name and state.abb objects we used above may be useful here.
 
 ```{r}
 library(dplyr)
@@ -537,7 +538,7 @@ datatable(
 )
 ```
 
-#### Calculating Total Emissions by joining tables
+## 5. Calculating Total Emissions by joining tables
 
 ```{r}
 library(dplyr)
@@ -545,7 +546,7 @@ library(readr)
 library(knitr)
 library(DT)
 
-# Ensure `Mode` exists in `NTD_SERVICE` before joining
+#Ensuring `Mode` exists in `NTD_SERVICE` before joining
 if (!"Mode" %in% colnames(NTD_SERVICE)) {
     NTD_SERVICE <- NTD_SERVICE %>%
         left_join(select(NTD_ENERGY, `NTD ID`, Mode), by = "NTD ID") %>%
@@ -607,7 +608,7 @@ Agencies with Zero Emissions
 library(dplyr)
 library(DT) 
 
-# Filter for agencies with zero emissions
+#Applying filter for agencies with zero emissions
 zero_emissions <- NTD_JOINED %>%
     filter(Total_CO2_Emissions == 0) %>%
     select(Agency, State, Mode)
@@ -622,13 +623,13 @@ datatable(
 )
 ```
 
-Highest Polluters
+#### Highest Polluters
 
 ```{r}
 library(dplyr)
 library(DT)
 
-# Get top 10 agencies with highest CO2 emissions
+#Finding top 10 agencies with highest CO2 emissions
 top_emitters <- NTD_JOINED %>%
     arrange(desc(Total_CO2_Emissions)) %>%
     select(Agency, State, Mode, Total_CO2_Emissions) %>%
@@ -647,13 +648,13 @@ datatable(
 )
 ```
 
-Are certain **modes of transport** worse for emissions?
+Are certain **modes of transport** worse for emissions?
 
 ```{r}
 library(dplyr)
 library(DT)
 
-# Summarize CO2 emissions by transport mode
+#Summarising CO2 emissions by transport mode
 mode_emissions <- NTD_JOINED %>%
     group_by(Mode) %>%
     summarise(Total_CO2_Emissions = sum(Total_CO2_Emissions, na.rm = TRUE)) %>%
@@ -678,7 +679,7 @@ Final table that shows **total CO₂ emissions for each agency + mode**
 library(dplyr)
 library(DT)
 
-# Arrange final dataset
+#Arranging the final dataset
 final_table <- NTD_JOINED %>%
     select(Agency, State, Mode, Total_CO2_Emissions) %>%
     arrange(desc(Total_CO2_Emissions))
@@ -697,7 +698,7 @@ datatable(
 )
 ```
 
-### Normalize Emissions to Transit Usage
+## 6. Normalize Emissions to Transit Usage
 
 #### Computing normalized emissions
 
@@ -705,7 +706,7 @@ datatable(
 library(dplyr)
 library(DT)
 
-# Compute normalized emissions
+#Computing normalized emissions
 NTD_JOINED <- NTD_JOINED %>%
     mutate(
         CO2_per_UPT = ifelse(UPT > 0, Total_CO2_Emissions / UPT, NA),
@@ -725,7 +726,7 @@ datatable(
 library(dplyr)
 library(DT)
 
-# Compute agency-level total UPT
+#Computing agency-level total UPT
 agency_sizes <- NTD_JOINED %>%
     group_by(Agency) %>%
     summarize(total_UPT = sum(UPT, na.rm = TRUE)) %>%
@@ -753,7 +754,7 @@ datatable(
 library(dplyr)
 library(DT)
 
-# Find the most efficient agency per category
+#Finding the most efficient agency per category
 most_efficient_UPT <- NTD_JOINED %>%
     filter(!is.na(CO2_per_UPT)) %>%
     group_by(size_category) %>%
@@ -779,9 +780,9 @@ datatable(
 )
 ```
 
-### **Determine Award Winners**
+## **7. Determine Award Winners**
 
-#### Greenest Transit Agency
+#### 7.1 Greenest Transit Agency
 
 ```{r}
 #Computing Emissions per Passenger Mile
@@ -807,18 +808,20 @@ datatable(
 
 ```
 
-#### Most Emissions Avoided
+#### 7.2 Most Emissions Avoided
 
 ```{r}
-# Assuming 22.0 mpg fuel efficiency (CAFE standard)
-# 1 gallon of gasoline emits ~19.6 lbs CO2
+#Assuming 22.0 mpg fuel efficiency (CAFE standard)
+#1 gallon of gasoline emits ~19.6 lbs CO2
 cafe_mpg <- 22.0
 gasoline_co2_per_gallon <- 19.6
 
 NTD_JOINED <- NTD_JOINED %>%
     mutate(
-        Car_Emissions = (MILES / cafe_mpg) * gasoline_co2_per_gallon,  # Emissions if all passengers drove
-        Emissions_Avoided = Car_Emissions - Total_CO2_Emissions  # Emissions avoided by transit
+        Car_Emissions = (MILES / cafe_mpg) * gasoline_co2_per_gallon,  
+        # Emissions if all passengers drove
+        Emissions_Avoided = Car_Emissions - Total_CO2_Emissions  
+        #Emissions avoided by transit
     )
 
 most_emissions_avoided <- NTD_JOINED %>%
@@ -836,13 +839,13 @@ datatable(
 
 ```
 
-#### Most Multi-Modal Agency
+#### 7.3 Most Multi-Modal Agency
 
 ```{r}
 library(dplyr)
 library(DT)
 
-# Count how many distinct modes each agency operates
+#Counting different modals under which each agency operates
 multi_modal <- NTD_JOINED %>%
   filter(!is.na(Agency), !is.na(Mode)) %>%
   group_by(Agency, State) %>%
@@ -850,7 +853,7 @@ multi_modal <- NTD_JOINED %>%
   arrange(desc(Num_Modes)) %>%
   slice(1)
 
-# Display the top multi-modal agency
+#Displaying the top multi-modal agency
 datatable(
   multi_modal,
   options = list(pageLength = 5, autoWidth = TRUE),
@@ -860,7 +863,7 @@ datatable(
 
 ```
 
-#### Least Efficient Transit Agency
+#### 7.4 Least Efficient Transit Agency
 
 ```{r}
 least_efficient_agency <- NTD_JOINED %>%
@@ -885,14 +888,14 @@ datatable(
 ```{r}
 library(dplyr)
 library(ggplot2)
-library(stringr)  # for str_wrap()
+library(stringr)  
 
 top_greenest <- NTD_JOINED %>%
   filter(!is.na(Emissions_per_Passenger_Mile), Emissions_per_Passenger_Mile > 0) %>%
   arrange(Emissions_per_Passenger_Mile) %>%
   slice(1:10)
 
-# Wrap long agency names so they don't overflow
+#Reducing long agency names to display the graph properly
 top_greenest$Agency <- str_wrap(top_greenest$Agency, width = 30)
 
 ggplot(top_greenest, aes(x = reorder(Agency, Emissions_per_Passenger_Mile), 
@@ -915,13 +918,13 @@ ggplot(top_greenest, aes(x = reorder(Agency, Emissions_per_Passenger_Mile),
 library(dplyr)
 library(ggplot2)
 
-# Top 10 worst efficiency
+#Top 10 worst efficiency
 worst_10 <- NTD_JOINED %>%
   filter(!is.na(Emissions_per_UPT), Emissions_per_UPT > 0) %>%
   arrange(desc(Emissions_per_UPT)) %>%
   slice(1:10)
 
-# Dot plot with smaller y-axis text
+#Dot plot with smaller y-axis text
 ggplot(worst_10, aes(x = Emissions_per_UPT, y = reorder(Agency, Emissions_per_UPT))) +
   geom_point(color = "blue", size = 4) +
   labs(
@@ -932,7 +935,8 @@ ggplot(worst_10, aes(x = Emissions_per_UPT, y = reorder(Agency, Emissions_per_UP
   ) +
   theme_light(base_size = 11) +
   theme(
-    axis.text.y = element_text(size = 7),  # Shrinks y-axis label size
+    axis.text.y = element_text(size = 7),  
+    #Shrinking y-axis label size
     plot.title = element_text(face = "bold"),
     plot.subtitle = element_text(size = 8)
   )
