@@ -883,7 +883,7 @@ datatable(
 
 ### **Visualization**
 
-#### Greenest Transit Agency Visualization 
+#### Greenest Transit Agency Visualization
 
 ```{r}
 library(dplyr)
@@ -943,7 +943,7 @@ ggplot(worst_10, aes(x = Emissions_per_UPT, y = reorder(Agency, Emissions_per_UP
 
 ```
 
-## Press Release 
+## Press Release
 
 #### **Award Title :** Greenest Transit Agency
 
