@@ -183,6 +183,7 @@ most_expensive_state <- EIA_SEP_REPORT |>
         `Electricity Price (MWh)` = electricity_price_MWh
     ) 
 
+#Displaying the table
 datatable(most_expensive_state,
     caption = "State with the Most Expensive Retail Electricity"
 )
@@ -207,6 +208,7 @@ dirtiest_state <- EIA_SEP_REPORT |>
         `CO₂ Emissions (lbs/MWh)` = CO2_MWh
     ) 
 
+#Displaying the table
 datatable(dirtiest_state,
     caption = "State with the Dirtiest Electricity Mix"
 )
@@ -227,6 +229,7 @@ average_CO2_table <- data.frame(
     `Weighted Average CO₂ Emissions (lbs/MWh)` = number(round(weighted_avg_CO2, 2), big.mark = ",")
 )
 
+#Displaying the table
 datatable(average_CO2_table,
     caption = "National Average CO₂ Emissions per MWh"
 )
@@ -257,6 +260,7 @@ rarest_energy_table <- data.frame(
     `Average Electricity Price (MWh)` = dollar(round(avg_price_rarest, 2))
 )
 
+#Displaying the table
 datatable(rarest_energy_table,
     caption = "Rarest Primary Energy Source in the US"
 )
@@ -289,6 +293,7 @@ ny_tx_table <- data.frame(
     `How Many Times Cleaner?` = c("-", round(times_cleaner, 2))
 )
 
+#Displaying the table
 datatable(ny_tx_table,
     caption = "Comparison of CO₂ Emissions: Texas vs. New York"
 )
@@ -330,6 +335,7 @@ library(DT)
 random_sample <- NTD_ENERGY |> 
     slice_sample(n = 10)
 
+#Displaying the table
 datatable(
     random_sample,
     caption = "Random Sample of 10 Rows from NTD_ENERGY Dataset"
@@ -403,6 +409,7 @@ most_upt_service <- NTD_SERVICE |>
     slice(1) |> 
     select(Agency, City, State, UPT)
 
+#Displaying the table
 datatable(
     most_upt_service,
     caption = "Transit Service with the Most Annual UPT"
@@ -415,12 +422,12 @@ datatable(
 library(dplyr)
 library(DT)
 
-# Calculating the average trip length for MTA in NYC
+#Calculating the average trip length for MTA in NYC
 mta_nyc_trip_length <- NTD_SERVICE %>%
   filter(Agency == "MTA New York City Transit") %>%
   summarise(`Avg Trip Length (Miles)` = mean(MILES / UPT, na.rm = TRUE))
 
-# Displaying the table
+#Displaying the table
 datatable(
   mta_nyc_trip_length,
   caption = "Average Trip Length for MTA in NYC Boroughs"
@@ -433,7 +440,7 @@ datatable(
 library(dplyr)
 library(DT)
 
-# Find the NYC transit service with the longest average trip length
+#Finding the NYC transit service with the longest average trip length
 longest_nyc_trip <- NTD_SERVICE |> 
     filter(grepl("New York", City, ignore.case = TRUE)) |>  
     mutate(`Average Trip Length (Miles per UPT)` = ifelse(UPT > 0, MILES / UPT, NA)) |> 
@@ -441,7 +448,7 @@ longest_nyc_trip <- NTD_SERVICE |>
     slice(1) |> 
     select(Agency, `Average Trip Length (Miles per UPT)`)
 
-library(DT)
+#Displaying the table
 datatable(
     longest_nyc_trip,
     caption = "NYC Transit Service with the Longest Average Trip Length"
@@ -455,12 +462,14 @@ datatable(
 library(dplyr)
 library(DT)
 
+#Finding the state with the fewest total miles traveled 
 state_least_miles <- NTD_SERVICE |> 
     group_by(State) |> 
     summarize(`Total Miles Traveled` = sum(MILES, na.rm = TRUE)) |> 
     arrange(`Total Miles Traveled`) |> 
     slice(1)
 
+#Displaying the table
 datatable(
     state_least_miles,
     caption = "State with Fewest Total Miles Traveled by Public Transit"
@@ -473,12 +482,13 @@ datatable(
 library(dplyr)
 library(DT)
 
-# Find states that are missing in the dataset
+#Finding states that are missing in the dataset
 represented_states <- unique(NTD_SERVICE$State)
 missing_states <- setdiff(state.name, represented_states)
 
 missing_states_table <- data.frame(`Missing States` = missing_states)
 
+#Displaying the table
 datatable(
     missing_states_table,
     caption = "States Missing from NTD_SERVICE Dataset"
@@ -511,6 +521,7 @@ if (!"State" %in% colnames(NTD_JOINED)) {
 NTD_JOINED <- NTD_JOINED %>%
     left_join(EIA_SEP_REPORT, by = c("State" = "state"))
 
+#Displaying the table
 datatable(
     head(NTD_JOINED, 10), 
     caption = "Preview of NTD_JOINED Dataset"
@@ -554,6 +565,7 @@ zero_emissions <- NTD_JOINED %>%
     filter(Total_CO2_Emissions == 0) %>%
     select(Agency, State, Mode)
 
+#Displaying the table
 datatable(
   zero_emissions,
   caption = "Agencies with Zero Emissions"
@@ -575,6 +587,7 @@ top_emitters <- NTD_JOINED %>%
 top_emitters <- top_emitters %>%
     mutate(Total_CO2_Emissions = formatC(Total_CO2_Emissions, format = "f", big.mark = ",", digits = 0))
 
+#Displaying the table
 datatable(
   top_emitters,
   caption = "Top 10 Agencies by CO₂ Emissions"
@@ -596,6 +609,7 @@ mode_emissions <- NTD_JOINED %>%
 mode_emissions <- mode_emissions %>%
     mutate(Total_CO2_Emissions = formatC(Total_CO2_Emissions, format = "f", big.mark = ",", digits = 0))
 
+#Displaying the table
 datatable(
   mode_emissions,
   caption = "CO₂ Emissions by Mode of Transport"
@@ -616,6 +630,7 @@ final_table <- NTD_JOINED %>%
 final_table <- final_table %>%
     mutate(Total_CO2_Emissions = formatC(Total_CO2_Emissions, format = "f", big.mark = ",", digits = 0))
 
+#Displaying the table
 datatable(
   final_table,
   caption = "Final Table of Total CO₂ Emissions by Agency and Mode"
@@ -637,6 +652,7 @@ NTD_JOINED <- NTD_JOINED %>%
         CO2_per_Mile = ifelse(MILES > 0, Total_CO2_Emissions / MILES, NA)
     )
 
+#Displaying the table
 datatable(
     NTD_JOINED %>% select(Agency, State, Mode, Total_CO2_Emissions, CO2_per_UPT, CO2_per_Mile),
     caption = "Normalized CO2 Emissions per UPT and per Passenger Mile"
@@ -656,7 +672,7 @@ NTD_JOINED <- NTD_JOINED %>%
     Emissions_per_Passenger_Mile = Total_CO2_Emissions / MILES
   )
 
-# Categorizing by size
+#Categorizing by size
 agency_sizes <- NTD_JOINED %>%
   group_by(Agency) %>%
   summarize(total_UPT = sum(UPT, na.rm = TRUE)) %>%
@@ -668,11 +684,11 @@ agency_sizes <- NTD_JOINED %>%
     )
   )
 
-# Joining to main dataset
+#Joining to main dataset
 NTD_JOINED <- NTD_JOINED %>%
   left_join(agency_sizes, by = "Agency")
 
-# Display the table
+#Displaying the table
 datatable(
   NTD_JOINED %>%
     select(Agency, State, Mode, size_category,
@@ -731,6 +747,7 @@ greenest_agency <- NTD_JOINED %>%
     slice(1) %>%
     select(Agency, State, Mode, Emissions_per_Passenger_Mile)
 
+#Displaying the table
 library(DT)
 datatable(
   greenest_agency, 
@@ -761,6 +778,7 @@ most_emissions_avoided <- NTD_JOINED %>%
     slice(1) %>%
     select(Agency, State, Mode, Emissions_Avoided)
 
+#Displaying the table
 library(DT)
 datatable(
   most_emissions_avoided,
@@ -802,6 +820,7 @@ least_efficient_agency <- NTD_JOINED %>%
   slice(1) %>%
   select(Agency, State, Mode, Total_CO2_Emissions, UPT, Inefficiency_Score)
 
+#Displaying the table
 datatable(
   least_efficient_agency,
   caption = "Least Efficient Transit Agency (High Emissions, Low Ridership)",
