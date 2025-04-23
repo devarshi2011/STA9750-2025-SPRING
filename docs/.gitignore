@@ -1,1 +1,17 @@
 /.quarto/
+# Ignore large or system files
+*.rds
+*.csv
+*.json
+*.RData
+*.Rhistory
+.DS_Store
+
+# Ignore auto-generated Quarto folders
+*_files/
+*_freeze/
+
+# Ignore local folders with heavy data
+data/
+data1/
+local_data/

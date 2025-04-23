@@ -7,6 +7,10 @@ editor: visual
 execute:
   engine: knitr
   freeze: true
+  echo: true  
+  warning: false  
+  message: false  
+  error: true 
 ---
 
 ### **Commission to Analyze Taxpayer Spending (CATS)**
@@ -503,7 +507,7 @@ head(overtime_replacement, 10)
 :::
 
 ::: details
-### Code 
+### Code
 
 ```{r}
 overtime_savings <- payroll_cleaned %>%
