@@ -1,0 +1,89 @@
+/* Set the page background color */
+body {
+  background-color: #000000; /* Spotify black */
+  color: #FFFFFF;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+
+/* Customize links */
+a {
+  color: #1ED760; /* Spotify green */
+}
+
+/* Customize tables */
+/* Make DataTable column headers visible */
+table.dataTable thead th {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  font-weight: bold;
+  text-transform: capitalize;
+  border-bottom: 1px solid #1ED760;
+}
+
+/* Headings (h1, h2, etc.) */
+h1, h2, h3, h4, h5 {
+  color: #1ED760;
+}
+
+/* Customize code blocks */
+pre, code {
+  background-color: #101010;
+  color: #1ED760;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+/* Buttons (if any are generated) */
+.btn-primary {
+  background-color: #1ED760;
+  border-color: #1ED760;
+}
+
+/* Table of contents sidebar */
+.sidebar {
+  background-color: #101010;
+  border-right: 1px solid #1ED760;
+}
+
+/* Horizontal rule line styling */
+hr {
+  border: 1px solid #1ED760;
+}
+
+/* Padding around main content */
+.content {
+  padding: 2rem;
+}
+
+/* Customize Title Font */
+.quarto-title .title {
+  font-size: 45px;
+  color: #000000; /* Black Title */
+  font-weight: bold;
+}
+
+/* Customize Subtitle Font */
+.quarto-title .subtitle {
+  font-size: 22px;
+  color: #ffffff; /* White Subtitle */
+}
+
+/* Correctly Customize Title Banner Background */
+.quarto-title-banner {
+  background-color: #1ED760; /* Brighter Spotify green */
+  color: white;
+}
+
+/* Change "Show the code" text color */
+.quarto-code-fold .quarto-code-fold-toggle {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* Make subheadings (##, ###) visible and bright */
+h2, h3, h4 {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/
