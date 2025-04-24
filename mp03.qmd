@@ -143,47 +143,36 @@ This section showcases a dataset of playlists, detailing the songs included, the
 
 ```{r label: load-playlists, message=FALSE, warning=FALSE}
 
-# Load libraries
 library(jsonlite)
 library(purrr)
 library(dplyr)
 library(tidyr)
 library(stringr)
 
-# Define function to load playlists
-load_playlists <- function() {
+#Only reading 5 files to avoid performance issues 
 
-  # 1. Create directory if it doesn't exist
+load_playlists <- function(n_files = 5) {
+  # Create directory
   dir_name <- file.path("data", "mp03_playlists")
   dir.create(dir_name, showWarnings = FALSE, recursive = TRUE)
- 
-  # 2. Set base URL
-  base_url <- "https://raw.githubusercontent.com/DevinOgrady/spotify_million_playlist_dataset/refs/heads/main/data1/"
 
-  # 3. Set slice numbers to loop through
-  slice_starts <- seq(0, 999000, by = 1000) 
-  
-  # 4. Create a safe JSON reading function
-  safe_read_json <- purrr::possibly(
-  .f = function(file_path) {
-      fromJSON(file_path, flatten = TRUE)
-    },
-    otherwise = NULL
-  )
- 
+  # Base URL and filenames
+  base_url <- "https://raw.githubusercontent.com/DevinOgrady/spotify_million_playlist_dataset/refs/heads/main/data1/mpd.slice.0-999.json"
+  slice_starts <- seq(0, 999000, by = 1000)
+  filenames <- paste0("mpd.slice.", slice_starts, "-", slice_starts + 999, ".json")
+
+  #Selected only the first few files to download and read
+  selected_files <- filenames[1:n_files]
+
+  #Safe JSON reader
+  safe_read_json <- purrr::possibly(fromJSON, otherwise = NULL)
+
   playlists_list <- list()
-  
-  for (start in slice_starts) {
-    # Create filename
-    filename <- paste0("mpd.slice.", start, "-", start + 999, ".json")
- 
-    # Full URL to download
+
+  for (filename in selected_files) {
     url <- paste0(base_url, filename)
- 
-    # Local file path
     local_file <- file.path(dir_name, filename)
- 
-    # Download if not already downloaded
+
     if (!file.exists(local_file)) {
       tryCatch({
         download.file(url, destfile = local_file, method = "libcurl", quiet = TRUE)
@@ -193,92 +182,119 @@ load_playlists <- function() {
       })
     }
 
-    # Read the file safely
+    #Reading the file
     if (file.exists(local_file)) {
-      playlists_list[[filename]] <- safe_read_json(local_file)
+      playlists_list[[filename]] <- safe_read_json(local_file, flatten = TRUE)
     }
   }
- 
- # Return list of playlist data
+
   return(playlists_list)
 }
 
-# Actually call the function to load the data
-playlists_raw <- load_playlists()
+#Loading just 5 files 
+playlists_raw <- load_playlists(n_files = 5)
 
 ```
 
 ```{r}
-# Save the raw playlists
+#Saving the raw playlists
 saveRDS(playlists_raw, "data/playlists_raw.rds")
 ```
 
 ```{r}
-#| echo: false
-#| eval: true
-#| include: false
-# Load libraries
+library(purrr)
 library(dplyr)
 library(tidyr)
-library(purrr)
-library(jsonlite)
 library(stringr)
 
-# Strip prefix
+# Strip prefix like "spotify:track:" etc.
 strip_spotify_prefix <- function(x) {
-  ifelse(!is.na(x), str_extract(x, ".*:.*:(.*)"), NA_character_)
+  str_extract(x, ".*:.*:(.*)")
 }
 
-# Full clean processing
-process_playlists <- function(playlists_raw) {
-  valid_playlists <- keep(playlists_raw, ~ !is.null(.x) && is.list(.x) && "playlists" %in% names(.x))
-  all_playlists <- flatten(map(valid_playlists, "playlists"))
-  all_playlists <- keep(all_playlists, ~ is.list(.x) && "tracks" %in% names(.x) && is.list(.x$tracks))
-  
-  tidy_tracks <- map_dfr(all_playlists, function(playlist) {
-    tibble(
-      playlist_name = playlist$name,
-      playlist_id = playlist$pid,
-      playlist_position = seq_len(length(playlist$tracks$track_name)) - 1,
-      playlist_followers = playlist$num_followers,
-      artist_name = playlist$tracks$artist_name,
-      artist_id = strip_spotify_prefix(playlist$tracks$artist_uri),
-      track_name = playlist$tracks$track_name,
-      track_id = strip_spotify_prefix(playlist$tracks$track_uri),
-      album_name = playlist$tracks$album_name,
-      album_id = strip_spotify_prefix(playlist$tracks$album_uri),
-      duration = playlist$tracks$duration_ms
-    )
-  })
-  
-  return(tidy_tracks)
-}
+#Combining all playlists from loaded list
+all_playlists <- map_dfr(playlists_raw, function(file) {
+  file$playlists
+})
 
-# Load sample playlist_tracks
-playlist_tracks <- readRDS("playlist_tracks_sample.rds")
 
-# Quick check
-glimpse(playlist_tracks)
-nrow(playlist_tracks)
+#Trying the "rectangle" nested list to a tidy table
+rectified_data <- all_playlists %>%
+  select(
+    playlist_name = name,
+    playlist_id = pid,
+    playlist_followers = num_followers,
+    tracks
+  ) %>%
+  unnest(tracks) %>%
+  group_by(playlist_id) %>%
+  mutate(
+    playlist_position = row_number(),
+    artist_name = map_chr(artist_name, 1, .default = NA_character_),
+    artist_id = strip_spotify_prefix(artist_uri),
+    track_name = track_name,
+    track_id = strip_spotify_prefix(track_uri),
+    album_name = album_name,
+    album_id = strip_spotify_prefix(album_uri),
+    duration = duration_ms
+  ) %>%
+  ungroup() %>%
+  select(
+    playlist_name, playlist_id, playlist_position, playlist_followers,
+    artist_name, artist_id, track_name, track_id,
+    album_name, album_id, duration
+  )
+
+rectified_data <- all_playlists %>%
+  select(
+    playlist_name = name,
+    playlist_id = pid,
+    playlist_followers = num_followers,
+    tracks
+  ) %>%
+  unnest(tracks) %>%
+  group_by(playlist_id) %>%
+  mutate(
+    playlist_position = row_number(),
+    artist_name = map_chr(artist_name, 1, .default = NA_character_),
+    artist_id = strip_spotify_prefix(artist_uri),
+    track_name = track_name,
+    track_id = strip_spotify_prefix(track_uri),
+    album_name = album_name,
+    album_id = strip_spotify_prefix(album_uri),
+    duration = duration_ms
+  ) %>%
+  ungroup() %>%
+  select(
+    playlist_name, playlist_id, playlist_position, playlist_followers,
+    artist_name, artist_id, track_name, track_id,
+    album_name, album_id, duration
+  )
+
+#Previewing first few rows
+head(rectified_data, 10)
+
 ```
 
 ```{r}
-library (DT)
-# Show the first 100 rows nicely
+library(DT)
+
+#Displaying Styled table showing 4 key columns from your rectified Task 3 data
 datatable(
-  head(playlist_tracks, 100),
+  rectified_data %>%
+    select(playlist_id, playlist_name, track_name, artist_name),
   options = list(
     pageLength = 10,
     autoWidth = TRUE,
-    dom = 'lfrtip' # show search, pagination, etc
+    dom = 'lfrtip'  # show entries dropdown, search bar, pagination
   ),
   rownames = FALSE,
   class = 'cell-border stripe hover'
 ) %>%
   formatStyle(
-    columns = names(playlist_tracks),
+    columns = c("playlist_id", "playlist_name", "track_name", "artist_name"),
     backgroundColor = '#121212',  # black background
-    color = '#00FF00'              # bright green text
+    color = '#00FF00'             # neon green text
   ) %>%
   htmlwidgets::onRender("
     function(el, x) {
@@ -289,6 +305,7 @@ datatable(
       $(el).parent().find('select').css('background-color', '#121212');
     }
   ")
+
 ```
 
 # Exploring the Tracks 🔍 🎵
@@ -297,35 +314,39 @@ datatable(
 
 ```{r}
 library(dplyr)
+library(tibble)
 library(DT)
 
-# 1A: How many distinct tracks?
-distinct_tracks <- n_distinct(playlist_tracks$track_id)
+#Calculating distinct counts
+num_unique_tracks <- rectified_data %>%
+  distinct(track_id) %>%
+  nrow()
 
-# 1B: How many distinct artists?
-distinct_artists <- n_distinct(playlist_tracks$artist_id)
+num_unique_artists <- rectified_data %>%
+  distinct(artist_id) %>%
+  nrow()
 
-# Create a small tibble to display both answers
-q1_table <- tibble::tibble(
-  Metric = c("Distinct Tracks", "Distinct Artists"),
-  Count = c(distinct_tracks, distinct_artists)
+#Displaying themed results table
+distinct_summary <- tibble::tibble(
+  Metric = c("Number of unique tracks", "Number of unique artists"),
+  Count = c(num_unique_tracks, num_unique_artists)
 )
 
-# Now display the table nicely
+#Displaying with dark theme
 datatable(
-  q1_table,
+  distinct_summary,
   options = list(
-    pageLength = 10,
+    pageLength = 5,
     autoWidth = TRUE,
-    dom = 'lfrtip' # keep 'Show entries', 'Search', 'Table', 'Pagination'
+    dom = 't'
   ),
   rownames = FALSE,
   class = 'cell-border stripe hover'
 ) %>%
   formatStyle(
-    columns = names(q1_table),
-    backgroundColor = '#121212',  # Black background
-    color = '#00FF00'             # Neon green text
+    columns = names(distinct_summary),
+    backgroundColor = '#121212',
+    color = '#00FF00'
   ) %>%
   htmlwidgets::onRender("
     function(el, x) {
@@ -336,26 +357,27 @@ datatable(
       $(el).parent().find('select').css('background-color', '#121212');
     }
   ")
+
+
 ```
 
 2.  What are the 5 most popular tracks in the playlist data?
 
 ```{r}
-library(dplyr)
-library(DT)
-
-# Q2: Get top 5 most popular tracks
-top5_tracks <- playlist_tracks %>%
-  count(track_name, sort = TRUE) %>%
+# Figuring out the 5 most popular tracks by how often they show up in playlists
+top5_tracks <- rectified_data %>%
+  group_by(track_name, artist_name) %>%
+  summarise(appearances = n(), .groups = "drop") %>%
+  arrange(desc(appearances)) %>%
   slice_head(n = 5)
 
-# Now display it nicely
+# Displaying the top 5 in my usual dark theme
 datatable(
   top5_tracks,
   options = list(
     pageLength = 5,
     autoWidth = TRUE,
-    dom = 'lfrtip'
+    dom = 't'  # table only, no search/pagination
   ),
   rownames = FALSE,
   class = 'cell-border stripe hover'
@@ -374,42 +396,38 @@ datatable(
       $(el).parent().find('select').css('background-color', '#121212');
     }
   ")
+
 ```
 
 3.  What is the most popular track in the playlist data that *does not have a corresponding entry in the song characteristics* data?
 
 ```{r}
-library(dplyr)
-library(DT)
+#Finding the most popular track from playlists that’s missing in the songs dataset
 
-# Find the most popular tracks
-popular_tracks <- playlist_tracks %>%
-  count(track_name, sort = TRUE)
+#Step 1: Finding track_ids that are in rectified_data but NOT in songs
+unmatched_tracks <- rectified_data %>%
+  filter(!(track_id %in% songs$track_id))
 
-# Find tracks in playlists but missing from songs dataset
-tracks_not_in_songs <- anti_join(
-  popular_tracks,
-  songs,
-  by = c("track_name" = "name")
-)
-
-# Get the most popular missing track
-most_popular_missing_track <- tracks_not_in_songs %>%
+#Step 2: Counting how often each unmatched track appears
+most_popular_unmatched <- unmatched_tracks %>%
+  group_by(track_name, artist_name, track_id) %>%
+  summarise(appearances = n(), .groups = "drop") %>%
+  arrange(desc(appearances)) %>%
   slice_head(n = 1)
 
-# Display it nicely
+#Step 3: Displaying it in my usual black + neon theme
 datatable(
-  most_popular_missing_track,
+  most_popular_unmatched,
   options = list(
     pageLength = 1,
     autoWidth = TRUE,
-    dom = 'lfrtip'
+    dom = 't'
   ),
   rownames = FALSE,
   class = 'cell-border stripe hover'
 ) %>%
   formatStyle(
-    columns = names(most_popular_missing_track),
+    columns = names(most_popular_unmatched),
     backgroundColor = '#121212',
     color = '#00FF00'
   ) %>%
@@ -422,81 +440,47 @@ datatable(
       $(el).parent().find('select').css('background-color', '#121212');
     }
   ")
+
 ```
 
 4.  According to the song characteristics data, what is the most “danceable” track? How often does it appear in a playlist?
 
 ```{r}
-library(dplyr)
-library(DT)
-
-# Find the most danceable track
-most_danceable_track <- songs %>%
+# Finding the most danceable song (with a valid ID)
+most_danceable_song <- songs %>%
+  filter(!is.na(id)) %>%
   arrange(desc(danceability)) %>%
   slice_head(n = 1)
 
-# Display it nicely
-datatable(
-  most_danceable_track,
-  options = list(
-    pageLength = 1,
-    autoWidth = TRUE,
-    dom = 'lfrtip'
-  ),
-  rownames = FALSE,
-  class = 'cell-border stripe hover'
-) %>%
-  formatStyle(
-    columns = names(most_danceable_track),
-    backgroundColor = '#121212',
-    color = '#00FF00'
-  ) %>%
-  htmlwidgets::onRender("
-    function(el, x) {
-      $(el).parent().find('label').css('color', '#00FF00');
-      $(el).parent().find('input[type=search]').css('color', '#00FF00');
-      $(el).parent().find('input[type=search]').css('background-color', '#121212');
-      $(el).parent().find('select').css('color', '#00FF00');
-      $(el).parent().find('select').css('background-color', '#121212');
-    }
-  ")
+# Extracting the actual track ID to match with playlist data
+most_danceable_id <- most_danceable_song$id[[1]]
 
-```
-
-```{r}
-library(dplyr)
-library(DT)
-
-# Get most danceable track name
-most_danceable_track_name <- songs %>%
-  arrange(desc(danceability)) %>%
-  slice_head(n = 1) %>%
-  pull(name)
-
-# Count how many times it appears in playlists
-most_danceable_appearance_count <- playlist_tracks %>%
-  filter(track_name == most_danceable_track_name) %>%
+# Counting how many times this song appears in playlists
+danceable_count <- rectified_data %>%
+  filter(track_id == most_danceable_id) %>%
   nrow()
 
-# Create a small tibble to display
-q4_appearance_table <- tibble::tibble(
-  Most_Danceable_Track = most_danceable_track_name,
-  Number_of_Appearances = most_danceable_appearance_count
+# Putting it all into a styled summary table
+danceable_summary <- tibble::tibble(
+  Track_Name = most_danceable_song$name,
+  Artist = most_danceable_song$artist,
+  Danceability = most_danceable_song$danceability,
+  Playlist_Appearances = danceable_count
 )
 
-# Display nicely
+# Showing it in my signature neon green & black theme 💚🖤
 datatable(
-  q4_appearance_table,
+  danceable_summary,
   options = list(
     pageLength = 1,
     autoWidth = TRUE,
-    dom = 'lfrtip'
+    dom = 't'
   ),
   rownames = FALSE,
   class = 'cell-border stripe hover'
 ) %>%
   formatStyle(
-    columns = names(q4_appearance_table),
+    columns = names(danceable_summary),
     backgroundColor = '#121212',
     color = '#00FF00'
   ) %>%
@@ -509,36 +493,44 @@ datatable(
       $(el).parent().find('select').css('background-color', '#121212');
     }
   ")
+
+
 ```
 
-According to the song characteristics data, the most danceable track is "Funky Cold Medina". However, it does not appear in any of the playlists from the playlist dataset.
+-\> According to the song characteristics data, the most danceable track is "Funky Cold Medina". However, it does not appear in any of the playlists from the playlist dataset.
 
 5.  Which playlist has the longest average track length?
 
 ```{r}
-library(dplyr)
-library(DT)
-
-# Find the playlist with the longest average track length
-longest_playlist <- playlist_tracks %>%
-  group_by(playlist_id, playlist_name) %>%
-  summarize(avg_duration = mean(duration, na.rm = TRUE), .groups = "drop") %>%
-  arrange(desc(avg_duration)) %>%
+# Finding the playlist with the longest average track length (in milliseconds)
+longest_avg_playlist <- rectified_data %>%
+  group_by(playlist_name) %>%
+  summarise(avg_duration_ms = mean(duration, na.rm = TRUE), .groups = "drop") %>%
+  arrange(desc(avg_duration_ms)) %>%
   slice_head(n = 1)
 
-# Display it nicely
+# Converting duration from ms to mm:ss format
+longest_avg_playlist <- longest_avg_playlist %>%
+  mutate(
+    avg_duration_min = floor(avg_duration_ms / 60000),
+    avg_duration_sec = floor((avg_duration_ms %% 60000) / 1000),
+    Avg_Track_Length = paste0(avg_duration_min, "m ", avg_duration_sec, "s")
+  ) %>%
+  select(Playlist = playlist_name, Avg_Track_Length)
+
+# Displaying the playlist name + average duration in my neon theme 🖤💚
 datatable(
-  longest_playlist,
+  longest_avg_playlist,
   options = list(
     pageLength = 1,
     autoWidth = TRUE,
-    dom = 'lfrtip'
+    dom = 't'
   ),
   rownames = FALSE,
   class = 'cell-border stripe hover'
 ) %>%
   formatStyle(
-    columns = names(longest_playlist),
+    columns = names(longest_avg_playlist),
     backgroundColor = '#121212',
     color = '#00FF00'
   ) %>%
@@ -551,36 +543,26 @@ datatable(
       $(el).parent().find('select').css('background-color', '#121212');
     }
   ")
+
 ```
 
 6.  What is the most popular playlist on Spotify?
 
 ```{r}
-library(dplyr)
-library(DT)
+#Getting the playlist with the most followers — basically Spotify royalty
+most_popular_playlist <- rectified_data %>%
+  select(playlist_name, playlist_followers) %>%
+  distinct() %>%
+  arrange(desc(playlist_followers)) %>%
+  slice_head(n = 1)
 
-# Join playlist_tracks with songs to get popularity info
-playlist_with_popularity <- playlist_tracks %>%
-  left_join(songs, by = c("track_name" = "name"))
-
-# Group by playlist and calculate average popularity
-playlist_popularity <- playlist_with_popularity %>%
-  group_by(playlist_id, playlist_name) %>%
-  summarize(avg_popularity = mean(popularity, na.rm = TRUE), .groups = "drop") %>%
-  arrange(desc(avg_popularity))
-
-# Get the most popular playlist
-most_popular_playlist <- playlist_popularity %>%
-  slice_head(n = 1) %>%
-  select(playlist_name, avg_popularity)
-
-# Display it nicely
+#Displaying it in my dark green neon setup
 datatable(
   most_popular_playlist,
   options = list(
     pageLength = 1,
     autoWidth = TRUE,
-    dom = 'lfrtip'
+    dom = 't'
   ),
   rownames = FALSE,
   class = 'cell-border stripe hover'
@@ -599,122 +581,276 @@ datatable(
       $(el).parent().find('select').css('background-color', '#121212');
     }
   ")
+
+
 ```
 
-Task 5
+# Melodic Metrics 📈 🎼
+
+This task visually explores the data to uncover what sets the most popular songs on Spotify apart.
 
 ```{r}
+library(stringr)
+
+#Clean the track_id so it matches the fmat in songs_id
+rectified_data <- rectified_data %>%
+  mutate(track_id = str_extract(track_id, "[^:]+$"))
+```
+
+```{r, message=FALSE, warning=FALSE}
 library(dplyr)
 
-# Inner joining two datasets for further analysis 
-playlist_songs <- playlist_tracks %>%
-  inner_join(songs, by = c("track_id" = "id"))
+# Joining playlist and song characteristics data on track ID
+songs_clean <- songs %>%
+  distinct(id, .keep_all = TRUE)  # Fixed syntax for distinct()
 
+combined_data <- rectified_data %>%
+  inner_join(songs_clean, by = c("track_id" = "id"))  # Ensure columns match
+
+# Force some visible output for rendering
+head(combined_data)  # Fixed spacing in function call
 ```
 
-Q1 Is the popularity column correlated with the number of playlist appearances? If so, to what degree?
-
-```{r}
-#Preparing, cleaning and aligning the playlist track metadata to ensure consistency with the song characteristics dataset.
-
-# Songs dataset
-songs <- tibble(
-  id = paste0("dummy_id_", 1:10000),
-  name = paste0("Track_", 1:10000),
-  duration_ms = sample(60000:300000, 10000, replace = TRUE),
-  release_date = sample(1990:2022, 10000, replace = TRUE),
-  year = sample(1990:2022, 10000, replace = TRUE),
-  acousticness = runif(10000),
-  danceability = runif(10000),
-  energy = runif(10000),
-  instrumentalness = runif(10000),
-  liveness = runif(10000),
-  loudness = rnorm(10000, mean = -10, sd = 5),
-  speechiness = runif(10000),
-  tempo = runif(10000, min = 60, max = 180),
-  valence = runif(10000),
-  mode = sample(0:1, 10000, replace = TRUE),
-  key = sample(0:11, 10000, replace = TRUE),
-  popularity = sample(0:100, 10000, replace = TRUE),
-  explicit = sample(0:1, 10000, replace = TRUE),
-  artist = paste0("Artist_", 1:10000)
-)
-
-# Playlist Tracks dataset
-set.seed(42)
-playlist_tracks <- tibble(
-  playlist_name = paste0("Playlist ", 1:5000),
-  playlist_id = 1:5000,
-  playlist_position = sample(0:100, 5000, replace = TRUE),
-  playlist_followers = sample(0:500, 5000, replace = TRUE),
-  artist_name = paste0("Artist_", sample(1:10000, 5000, replace = TRUE)),
-  artist_id = paste0("dummy_artist_", sample(1:10000, 5000, replace = TRUE)),
-  track_name = paste0("Track_", sample(1:10000, 5000, replace = TRUE)),
-  track_id = paste0("dummy_id_", sample(1:10000, 5000, replace = TRUE)),
-  album_name = paste0("Album_", sample(1:5000, 5000, replace = TRUE)),
-  album_id = paste0("dummy_album_", sample(1:5000, 5000, replace = TRUE)),
-  duration = sample(60000:300000, 5000, replace = TRUE)
-)
-
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| include: false
-playlist_songs <- playlist_tracks %>%
-  inner_join(songs, by = c("track_id" = "id"))
-
-nrow(playlist_songs)  # check - now it should show ~5000 rows!
-```
-
-```{r}
-# Define track_appearances for use in later plots
-track_appearances <- playlist_songs %>%
-  count(track_id, popularity) %>%
-  rename(n = n)
-
-```
+### Is the popularity column correlated with the number of playlist appearances? If so, to what degree?
 
 ```{r}
 library(ggplot2)
 library(dplyr)
 
-# Step 1: Average popularity by number of playlist appearances
-avg_popularity <- track_appearances %>%
-  group_by(n) %>%
-  summarize(avg_popularity = mean(popularity, na.rm = TRUE))
+# Create data frame with track popularity and playlist appearance counts
+popularity_vs_appearances <- combined_data %>%
+  group_by(track_id, popularity) %>%
+  summarise(playlist_appearances = n(), .groups = "drop")
 
-# Step 2: Plot
-ggplot(avg_popularity, aes(x = n, y = avg_popularity)) +
-  geom_point(color = "blue", size = 3) +
-  geom_smooth(method = "lm", se = FALSE, color = "red", size = 1.2) +
+# Step 1: Bin playlist appearance counts
+binned_data <- popularity_vs_appearances %>%
+  mutate(bin = cut(playlist_appearances, 
+                   breaks = c(0, 5, 10, 20, 50, 100, Inf),
+                   labels = c("0–5", "6–10", "11–20", "21–50", "51–100", "100+")))
+
+# Step 2: Plot as boxplot with your aesthetic
+ggplot(binned_data, aes(x = bin, y = popularity)) +
+  geom_boxplot(fill = "#00FF00", alpha = 0.7, color = "#00FF00") +
   labs(
-    title = "Average Popularity vs Playlist Appearances",
-    x = "Number of Playlist Appearances",
-    y = "Average Popularity Score"
+    title = "Spotify Popularity by Playlist Appearance Group",
+    x = "Playlist Appearance Bin",
+    y = "Popularity Score"
   ) +
-  theme_light(base_size = 14) +
+  theme_minimal(base_size = 14) +
   theme(
-    plot.title = element_text(face = "bold", size = 16)
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    text = element_text(color = "#00FF00"),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00")
+  )
+
+
+```
+
+**Analysis** - This boxplot shows that tracks appearing in more playlists generally have higher Spotify popularity scores. Median popularity rises with playlist appearances, especially beyond 20. Still, the wide range within each group suggests that **playlist exposure helps, but is not the only factor** driving popularity.
+
+### In what year were the most popular songs released?
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Filter popular songs (popularity ≥ 75)
+popular_songs <- combined_data %>%
+  filter(popularity >= 75, !is.na(year))
+
+# Count how many were released per year
+yearly_counts <- popular_songs %>%
+  count(year) %>%
+  filter(year >= 1995)  # optional: filter to keep it clean
+
+# Plot - clean, rotated, and readable
+ggplot(yearly_counts, aes(x = factor(year), y = n)) +
+  geom_col(fill = "#00FF00", alpha = 0.8) +
+  labs(
+    title = "When Were the Most Popular Songs Released?",
+    x = "Release Year",
+    y = "Number of Popular Songs"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    axis.text = element_text(color = "#00FF00", angle = 45, hjust = 1),
+    axis.title = element_text(color = "#00FF00"),
+    text = element_text(color = "#00FF00")
   )
 
 ```
 
+**Analysis** - Most popular songs were released after 2015, with a sharp rise in recent years. This aligns with how newer music dominates playlists due to recency bias and platform algorithms.
+
+### In what year did danceability peak?
+
+```{r setup-packages, include=FALSE}
+#Loading Animation libraries
+library(gganimate)
+library(gifski)
+```
+
 ```{r}
-cor(avg_popularity$n, avg_popularity$avg_popularity, use = "complete.obs")
+library(ggplot2)
+library(dplyr)
+library(gganimate)
+
+# Step 1: Filter for popular songs
+popular_dance <- combined_data %>%
+  filter(popularity >= 75, !is.na(danceability), !is.na(year))
+
+# Step 2: Calculate average danceability by year
+dance_by_year <- popular_dance %>%
+  group_by(year) %>%
+  summarize(avg_danceability = mean(danceability)) %>%
+  filter(year >= 1995)
+
+# Step 3: Create animated line chart
+p <- ggplot(dance_by_year, aes(x = year, y = avg_danceability)) +
+  geom_line(color = "#00FF00", size = 1.5) +
+  geom_point(color = "#00FF00", size = 3) +
+  labs(
+    title = "Danceability Trends Over Time",
+    subtitle = "Year: {frame_time}",
+    x = "Year",
+    y = "Average Danceability"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#121212"),
+    panel.background = element_rect(fill = "#121212"),
+    text = element_text(color = "#00FF00"),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(size = 18, face = "bold")
+  ) +
+  transition_reveal(year)
+
+# Step 4: Render animation (and hide output in final render)
+invisible(
+  animate(p, width = 800, height = 500, fps = 10, duration = 8, renderer = gifski_renderer())
+)
 
 ```
 
-There is a weak negative correlation between playlist appearances and average popularity, suggesting that songs appearing more often in playlists are slightly less popular overall.
+**Analysis -** Danceability of popular songs steadily increased over time, peaking around **2019–2020**. This reflects the shift toward more rhythm-driven, upbeat music — possibly influenced by streaming-era pop, TikTok trends, and global dance tracks dominating the charts.
 
-Q2 In what year were the most popular songs released?
+### Which decade is most represented on user playlists? 
 
 ```{r}
-popular_songs <- playlist_songs %>%
-  filter(popularity >= 50)
+library(dplyr)
+library(ggplot2)
+
+# Step 1: Create decade column
+decade_counts <- combined_data %>%
+  filter(!is.na(year)) %>%
+  mutate(decade = (year %/% 10) * 10) %>%
+  count(decade)
+
+# Step 2: Plot the decade frequency
+ggplot(decade_counts, aes(x = factor(decade), y = n)) +
+  geom_col(fill = "#00FF00", alpha = 0.8) +
+  labs(
+    title = "Most Represented Decades on Spotify Playlists",
+    x = "Decade",
+    y = "Number of Tracks"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.background = element_rect(fill = "#121212"),
+    panel.background = element_rect(fill = "#121212"),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    text = element_text(color = "#00FF00"),
+    plot.title = element_text(face = "bold")
+  )
 
 ```
+
+**Analysis** - The **2010s** dominate user playlists, followed by the 2000s. This reflects user preferences skewing toward more recent decades, likely due to recency, nostalgia, and streaming platform curation that favors modern music.
+
+### Polar (circular) coordinates
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Updated readable labels (slash format, no flats)
+key_labels <- c("C", "C#/Db", "D", "D#/Eb", "E", "F", 
+                "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B")
+
+# Count key frequencies
+key_counts <- combined_data %>%
+  count(key) %>%
+  mutate(
+    key_label = factor(key_labels[key + 1], levels = key_labels)
+  )
+
+# Polar plot
+ggplot(key_counts, aes(x = key_label, y = n, fill = key_label)) +
+  geom_bar(stat = "identity", color = "white", width = 1) +
+  coord_polar(start = 0) +
+  scale_fill_manual(values = rep("#00FF00", 12)) +
+  labs(
+    title = "Distribution of Musical Keys",
+    x = NULL,
+    y = "Number of Songs"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    panel.grid.minor = element_blank(),
+    axis.text.y = element_text(color = "#00FF00"),
+    axis.text.x = element_text(color = "#00FF00", size = 12, vjust = -0.8),  # pull labels above border
+    axis.title.y = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold"),
+    legend.position = "none"
+  )
+
+```
+
+**Analysis** - The distribution of track lengths shows a clear peak between **3 to 4 minutes** (around **180–240 seconds**), with the most popular duration near **210 seconds**. This suggests that mid-length songs are the most playlist-friendly—long enough to feel complete but short enough to hold attention. Tracks that are very short or very long appear far less frequently, likely because they’re either intros/skits or extended versions not suited for general playlists.
+
+### What are the most popular track lengths? (Are short tracks, long tracks, or something in between most commonly included in user playlists
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Convert milliseconds to seconds (if needed)
+lengths_data <- combined_data %>%
+  mutate(duration_sec = duration / 1000) %>%
+  filter(duration_sec >= 60, duration_sec <= 600)  # Keep songs between 1–10 min
+
+# Histogram of track lengths
+ggplot(lengths_data, aes(x = duration_sec)) +
+  geom_histogram(fill = "#00FF00", color = "white", binwidth = 10) +
+  labs(
+    title = "Distribution of Track Lengths in Playlists",
+    x = "Track Length (seconds)",
+    y = "Number of Tracks"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
+  )
+
+```
+
+**Analysis** - Most tracks in user playlists fall between **3 to 4 minutes**, with a noticeable peak around **210 seconds**. This suggests that songs of moderate length are the most commonly included—probably because they strike the right balance between listener attention and playlist flow. Very short or long tracks are much less frequent, indicating that mid-length songs tend to be the sweet spot for popularity.
+
+## Two more visualization
 
 ```{r}
 library(dplyr)
@@ -747,24 +883,30 @@ songs <- tibble(
 ```{r}
 library(ggplot2)
 library(dplyr)
+library(lubridate)  # for extracting year from date
 
-# Step 1: Filter "popular" songs if you want (optional threshold)
-# Example: songs with popularity >= 60
-popular_songs <- playlist_songs %>%
-  filter(popularity >= 60)
+# Step 1: Filter popular songs
+popular_songs <- combined_data %>%
+  filter(popularity >= 60) %>%
+  mutate(release_year = year(ymd(release_date)))  # convert to year
 
-# Step 2: Plot Release Year Distribution
-ggplot(popular_songs, aes(x = release_date)) +
-  geom_histogram(binwidth = 1, fill = "skyblue", color = "black", boundary = 1928) +
+# Step 2: Plot release year distribution with custom dark theme
+ggplot(popular_songs, aes(x = release_year)) +
+  geom_histogram(binwidth = 1, fill = "#00FF00", color = "white", boundary = 1928) +
   labs(
     title = "Release Years of Most Popular Songs",
     x = "Release Year",
     y = "Number of Songs"
   ) +
-  scale_x_continuous(breaks = seq(1928, 2020, by = 10), expand = c(0,0)) +
-  theme_light(base_size = 14) +
+  scale_x_continuous(breaks = seq(1928, 2020, by = 10), expand = c(0, 0)) +
+  theme_minimal(base_size = 14) +
   theme(
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold"),
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
 ```
@@ -772,67 +914,89 @@ ggplot(popular_songs, aes(x = release_date)) +
 Q3 In what year did danceability peak?
 
 ```{r}
-library(ggplot2)
 library(dplyr)
+library(ggplot2)
+library(lubridate)
 
-# Step 1: (Optional) Filter for popular songs
-popular_songs <- playlist_songs %>%
-  filter(popularity >= 60)
+# Step 1: Filter for popular songs
+popular_songs <- combined_data %>%
+  filter(popularity >= 60) %>%
+  mutate(release_year = year(ymd(release_date)))
 
 # Step 2: Calculate average danceability by release year
 danceability_by_year <- popular_songs %>%
-  group_by(release_date) %>%
+  group_by(release_year) %>%
   summarise(avg_danceability = mean(danceability, na.rm = TRUE)) %>%
   ungroup()
 
-# Step 3: Plot the trend
-ggplot(danceability_by_year, aes(x = release_date, y = avg_danceability)) +
-  geom_line(color = "darkorange", size = 1.2) +
-  geom_point(color = "firebrick", size = 2) +
+# Step 3: Plot the trend with custom dark theme
+ggplot(danceability_by_year, aes(x = release_year, y = avg_danceability)) +
+  geom_line(color = "#00FF00", size = 1.2) +
+  geom_point(color = "white", size = 2) +
   labs(
     title = "Danceability Trend Over Release Years",
     x = "Release Year",
     y = "Average Danceability"
   ) +
-  scale_x_continuous(breaks = seq(1928, 2020, by = 10), expand = c(0,0)) +
-  theme_light(base_size = 14) +
+  scale_x_continuous(breaks = seq(1928, 2023, by = 10), expand = c(0, 0)) +
+  theme_minimal(base_size = 14) +
   theme(
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold"),
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
-
 ```
 
 Q4 Which decade is most represented on user playlists? (The integer division (`%/%`) operator may be useful for computing decades from years.)
 
 ```{r}
-playlist_songs <- playlist_songs %>%
-  mutate(decade = (release_date %/% 10) * 10)
-
-```
-
-```{r}
 #| echo: true
 #| eval: true
 #| include: false
+library(dplyr)
+library(ggplot2)
+library(lubridate)
 
-decade_counts <- playlist_songs %>%
-  count(decade, sort = TRUE)
-decade_counts
+# Safely parse release_date and create decade
+combined_data <- combined_data %>%
+  mutate(
+    parsed_date = suppressWarnings(ymd(release_date)),
+    release_year = year(parsed_date),
+    decade = (release_year %/% 10) * 10
+  ) %>%
+  filter(!is.na(decade))  # Keep only valid years
 ```
 
 ```{r}
-ggplot(playlist_songs, aes(x = year)) +
-  geom_histogram(binwidth = 10, fill = "#9370DB", color = "white", boundary = 0) +
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+
+# Step 1: Create decade column from release_date
+combined_data <- combined_data %>%
+  mutate(decade = (year(ymd(release_date)) %/% 10) * 10)
+
+# Step 2: Plot with dark theme
+ggplot(combined_data, aes(x = decade)) +
+  geom_histogram(binwidth = 10, fill = "#00FF00", color = "white", boundary = 0) +
   scale_x_continuous(breaks = seq(1920, 2030, by = 10)) +
   labs(
     title = "Histogram of Songs by Release Decade",
     x = "Decade",
     y = "Number of Songs"
   ) +
-  theme_light(base_size = 14) +
+  theme_minimal(base_size = 14) +
   theme(
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
   )
 ```
 
@@ -840,54 +1004,66 @@ Q5 Create a plot of key frequency among songs. Because musical keys exist in a �
 
 ```{r}
 library(ggplot2)
+library(dplyr)
 
-# Step 1: Count number of songs per key
-key_counts <- playlist_songs %>%
-  count(key)
+# Step 1: Replace key numbers with note labels
+key_labels <- c("C", "C#", "D", "D#", "E", "F", 
+                "F#", "G", "G#", "A", "A#", "B")
 
-# Step 2: Plot using coral color
-ggplot(key_counts, aes(x = factor(key), y = n)) +
-  geom_col(fill = "#FF7F50", color = "white", width = 1) +  # Coral color
+key_counts <- combined_data %>%
+  filter(!is.na(key)) %>%
+  count(key) %>%
+  mutate(key_label = factor(key_labels[key + 1], levels = key_labels))  # +1 because R is 1-indexed
+
+# Step 2: Polar bar chart with your custom theme
+ggplot(key_counts, aes(x = key_label, y = n)) +
+  geom_col(fill = "#00FF00", color = "white", width = 1) +
   coord_polar(start = 0) +
   labs(
     title = "Distribution of Songs by Musical Key",
-    x = "Musical Key",
+    x = "",
     y = "Number of Songs"
   ) +
-  theme_light(base_size = 14) +
+  theme_minimal(base_size = 14) +
   theme(
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank()
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00", size = 12),
+    axis.title.y = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold"),
+    axis.text.x = element_text(vjust = -0.5)  # Move labels slightly outward
   )
-
 ```
 
 Q6 What are the most popular track lengths? (Are short tracks, long tracks, or something in between most commonly included in user playlists?)
 
 ```{r}
-playlist_songs <- playlist_songs %>%
-  mutate(duration_minutes = duration_ms / 60000)  # 60,000 ms = 1 min
-
-```
-
-```{r}
 library(ggplot2)
+library(dplyr)
 
-ggplot(playlist_songs, aes(x = duration_minutes)) +
-  geom_histogram(binwidth = 0.5, fill = "#20B2AA", color = "white", boundary = 0) +  # Aqua color
+# Step 1: Use combined_data and convert duration to minutes
+length_data <- combined_data %>%
+  mutate(duration_minutes = duration / 60000) %>%
+  filter(duration_minutes >= 1, duration_minutes <= 10)  # Limit to 1–10 minutes
+
+# Step 2: Plot histogram of track lengths
+ggplot(length_data, aes(x = duration_minutes)) +
+  geom_histogram(binwidth = 0.5, fill = "#00FF00", color = "white", boundary = 0) +
   labs(
-    title = "Distribution of Track Lengths",
+    title = "Distribution of Track Lengths in Playlists",
     x = "Duration (minutes)",
     y = "Number of Songs"
   ) +
-  xlim(0, 10) +  # Focus on realistic song lengths (0–10 minutes)
-  theme_light(base_size = 14) +
+  theme_minimal(base_size = 14) +
   theme(
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
   )
-
 ```
 
 **Analysis** - Based on the distribution, most songs in user playlists have a duration between 2 to 4 minutes, suggesting that medium-length tracks are the most commonly included.
@@ -899,38 +1075,44 @@ Q7 Pose and visually answer at least two more other exploratory questions.
 #### 1️⃣ Are explicit songs more or less popular than non-explicit songs?
 
 ```{r}
-library(dplyr)
 library(ggplot2)
+library(dplyr)
 
-# Step 1: Create popularity buckets
-playlist_songs <- playlist_songs %>%
+# Step 1: Create popularity buckets using combined_data
+playlist_songs <- combined_data %>%
   mutate(
     popularity_bucket = case_when(
-      popularity < 20 ~ "0-19",
-      popularity >= 20 & popularity < 40 ~ "20-39",
-      popularity >= 40 & popularity < 60 ~ "40-59",
-      popularity >= 60 & popularity < 80 ~ "60-79",
-      popularity >= 80 ~ "80-100"
+      popularity < 20 ~ "0–19",
+      popularity >= 20 & popularity < 40 ~ "20–39",
+      popularity >= 40 & popularity < 60 ~ "40–59",
+      popularity >= 60 & popularity < 80 ~ "60–79",
+      popularity >= 80 ~ "80–100"
     )
   )
 
-# Step 2: Plot stacked bar chart
+# Step 2: Stacked bar chart of explicit vs non-explicit songs
 ggplot(playlist_songs, aes(x = popularity_bucket, fill = factor(explicit))) +
   geom_bar(position = "fill") +
   scale_y_continuous(labels = scales::percent) +
-  scale_fill_manual(values = c("#56B4E9", "#E69F00"), labels = c("Non-Explicit", "Explicit")) +
+  scale_fill_manual(
+    values = c("0" = "#56B4E9", "1" = "#E69F00"),  # Non-explicit = blue, Explicit = orange
+    labels = c("Non-Explicit", "Explicit")
+  ) +
   labs(
     title = "Proportion of Explicit vs Non-Explicit Songs by Popularity Range",
     x = "Popularity Range",
     y = "Proportion of Songs",
     fill = "Explicit Content"
   ) +
-  theme_light(base_size = 14) +
+  theme_minimal(base_size = 14) +
   theme(
-    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
-    axis.text = element_text(color = "black")
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
   )
-
 ```
 
 **Analysis** - The plot shows that explicit and non-explicit songs are fairly evenly distributed across all popularity ranges. Explicit songs consistently make up about half of the songs, regardless of popularity level. There isn’t a strong trend suggesting that explicit songs are significantly more or less popular compared to non-explicit songs.
@@ -939,38 +1121,36 @@ ggplot(playlist_songs, aes(x = popularity_bucket, fill = factor(explicit))) +
 
 ```{r}
 library(ggplot2)
+library(dplyr)
 
-# Create a new variable: "Popularity Group"
-playlist_songs <- playlist_songs %>%
+# Use combined_data and classify songs by popularity
+playlist_songs <- combined_data %>%
   mutate(popularity_group = ifelse(popularity >= 50, "Popular", "Less Popular"))
 
-# Plot - with outlines and visible median line
+# Boxplot with customized colors and dark theme
 ggplot(playlist_songs, aes(x = popularity_group, y = valence, fill = popularity_group)) +
-  geom_boxplot(color = "black", width = 0.5, outlier.shape = NA) +  # black outlines, no outliers
+  geom_boxplot(color = "white", width = 0.5, outlier.shape = NA) +  # White outlines
   scale_fill_manual(values = c("Popular" = "skyblue", "Less Popular" = "tomato")) +
   labs(
     title = "Valence Scores: Popular vs Less Popular Songs",
     x = "Popularity Group",
     y = "Valence (Positivity Score)"
   ) +
-  theme_bw() +
+  theme_minimal(base_size = 14) +
   theme(
-    plot.title = element_text(size = 16, face = "bold", color = "black"),
-    axis.text = element_text(color = "black"),
-    axis.title = element_text(color = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_rect(fill = "white"),
-    plot.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold"),
     legend.position = "none"
   )
-
-
 ```
 
 **Analysis** - The box plot shows that popular and less popular songs have a very similar distribution of valence scores. Both groups share nearly identical medians, though popular songs have a slightly tighter spread, suggesting a more consistent emotional tone. Overall, positivity does not strongly differ between the two groups.
 
-## From Anchor to Anthem: Crafting the Playlist 💿  ➡️ 🎧
+## From Anchor to Anthem: Crafting the Playlist 💿 ➡️ 🎧
 
 ```{r}
 #| echo: true
@@ -1059,7 +1239,7 @@ Analysis - I used two anchor songs and applied a few heuristics to identify rela
 
 Out of the 20 songs shown below, at least 8 are not considered popular.
 
-# From Vinyl to Viral 📼 
+# From Vinyl to Viral 📼
 
 # Bonus Track 🎞️
 
