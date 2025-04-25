@@ -592,6 +592,7 @@ Task 5
 #| label: load-playlists
 #| message: false
 #| warning: false
+#| include: false
 library(dplyr)
 
 # Joining playlist and song characteristics data on track ID
@@ -647,20 +648,22 @@ ggplot(binned_data, aes(x = bin, y = popularity)) +
 
 ### In what year were the most popular songs released?
 
-```{r, message=FALSE, warning=FALSE}
-library(ggplot2)
-library(dplyr)
+```{r}
+#| label: prep-yearly-counts
+#| message: false
+#| warning: false
 
-# Filter popular songs (popularity >= 75)
+library (dplyr)
+# Filter and count popular songs by year
 popular_songs <- rectified %>%
   filter(popularity >= 75, !is.na(year))
 
-# Count how many were released per year
 yearly_counts <- popular_songs %>%
   count(year) %>%
-  filter(year >= 1995)  # optional: filter to keep it clean
+  filter(year >= 1995)
+```
 
-# Plot - clean, rotated, and readable
+```{r, message=FALSE, warning=FALSE}
 ggplot(yearly_counts, aes(x = factor(year), y = n)) +
   geom_col(fill = "#00FF00", alpha = 0.8) +
   labs(
@@ -674,9 +677,11 @@ ggplot(yearly_counts, aes(x = factor(year), y = n)) +
     panel.background = element_rect(fill = "#121212", color = NA),
     panel.grid.major = element_line(color = "white"),
     axis.text = element_text(color = "#00FF00"),
+    axis.text.x = element_text(angle = 45, hjust = 1),  # 💡 Rotate x-axis labels
     axis.title = element_text(color = "#00FF00"),
     plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
   )
+
 ```
 
 **Analysis** - Most popular songs were released after 2015, with a sharp rise in recent years. This aligns with how newer music dominates playlists due to recency bias and platform algorithms.
@@ -846,38 +851,338 @@ ggplot(lengths_data, aes(x = duration_sec)) +
 #### 1️⃣ Are explicit songs more or less popular than non-explicit songs?
 
 ```{r}
-library(dplyr)
 library(ggplot2)
+library(dplyr)
 
+# Convert 'explicit' to label
+combined_data <- combined_data %>%
+  mutate(explicit_label = ifelse(explicit.x == 1, "Explicit", "Non-Explicit"))
 
+# Boxplot comparison
+ggplot(combined_data, aes(x = explicit_label, y = popularity.x, fill = explicit_label)) +
+  geom_boxplot(color = "white", width = 0.5) +
+  scale_fill_manual(values = c("Explicit" = "#FF4500", "Non-Explicit" = "#00FF00")) +
+  labs(
+    title = "Popularity of Explicit vs Non-Explicit Songs",
+    x = "Song Type",
+    y = "Popularity"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold"),
+    legend.position = "none"
+  )
 ```
 
-**Analysis** - The plot shows that explicit and non-explicit songs are fairly evenly distributed across all popularity ranges. Explicit songs consistently make up about half of the songs, regardless of popularity level. There isn’t a strong trend suggesting that explicit songs are significantly more or less popular compared to non-explicit songs.
+**Analysis** -
 
-#### 2️⃣ How does valence differ between popular and less popular songs?
+#### 2️⃣ Do popular songs tend to be more “positive” in valence?
 
 ```{r}
 library(ggplot2)
+library(dplyr)
 
+# Create popularity group
+combined_data <- combined_data %>%
+  mutate(popularity_group = ifelse(popularity.x >= 60, "Popular", "Less Popular"))
+
+# Boxplot comparing valence (positivity)
+ggplot(combined_data, aes(x = popularity_group, y = valence.x, fill = popularity_group)) +
+  geom_boxplot(color = "white") +
+  scale_fill_manual(values = c("Popular" = "#00FF00", "Less Popular" = "#FF69B4")) +
+  labs(
+    title = "Valence Scores by Popularity Group",
+    x = "Popularity Group",
+    y = "Valence (Positivity Score)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
+  )
 ```
 
-**Analysis** - The box plot shows that popular and less popular songs have a very similar distribution of valence scores. Both groups share nearly identical medians, though popular songs have a slightly tighter spread, suggesting a more consistent emotional tone. Overall, positivity does not strongly differ between the two groups.
+**Analysis** -
 
 ## From Anchor to Anthem: Crafting the Playlist 💿 ➡️ 🎧
 
 ```{r}
+# Set anchor songs
+anchor_songs <- combined_data %>%
+  filter(track_name %in% c("HUMBLE.", "White Iverson"))
+
+# Get their track IDs for matching
+anchor_ids <- anchor_songs$track_id
 
 ```
 
 ```{r}
+# Find songs that appear on the same playlists
+playlist_overlap_songs <- combined_data %>%
+  filter(track_id %in% anchor_ids) %>%
+  distinct(playlist_id) %>%
+  inner_join(combined_data, by = "playlist_id") %>%
+  filter(!track_id %in% anchor_ids) %>%
+  distinct(track_id, track_name, artist_name)
 
 ```
 
-Analysis - I used two anchor songs and applied a few heuristics to identify related songs for playlist building. Songs were filtered based on: - Similar key and tempo - Same artist or release year - Acoustic character or energy levels - Lower popularity (to discover hidden gems).
+```{r}
+library(dplyr)
 
-Out of the 20 songs shown below, at least 8 are not considered popular.
+# Step 1: Extract key and tempo of anchor songs and rename for simplicity
+anchor_keys_tempos <- anchor_songs %>%
+  distinct(key.x, tempo.x) %>%
+  rename(key = key.x, tempo = tempo.x)
 
-# From Vinyl to Viral 📼
+# Step 2: Filter songs in combined_data with similar key and tempo ± 5
+harmonic_matches <- combined_data %>%
+  filter(
+    key.x %in% anchor_keys_tempos$key,
+    tempo.x >= min(anchor_keys_tempos$tempo) - 5,
+    tempo.x <= max(anchor_keys_tempos$tempo) + 5,
+    !track_id %in% anchor_ids
+  ) %>%
+  distinct(track_id, track_name, artist_name)
+```
+
+Step4
+
+```{r}
+# Filter songs by same artist
+same_artist_songs <- combined_data %>%
+  filter(artist_name %in% anchor_songs$artist_name) %>%
+  filter(!track_id %in% anchor_ids) %>%
+  distinct(track_id, track_name, artist_name)
+
+```
+
+Step5
+
+```{r}
+library(dplyr)
+library(lubridate)
+
+# Anchor song traits
+anchor_traits <- anchor_songs %>%
+  mutate(year = suppressWarnings(year(mdy(release_date.x)))) %>%
+  filter(!is.na(year)) %>%
+  summarise(
+    anchor_year = first(year),
+    acoustic_min = min(acousticness.x, na.rm = TRUE),
+    acoustic_max = max(acousticness.x, na.rm = TRUE),
+    dance_min = min(danceability.x, na.rm = TRUE),
+    dance_max = max(danceability.x, na.rm = TRUE)
+  )
+
+# Filter based on year, acousticness, and danceability
+similar_trait_songs <- combined_data %>%
+  mutate(year = suppressWarnings(year(mdy(release_date.x)))) %>%
+  filter(
+    !is.na(year),
+    year == anchor_traits$anchor_year,
+    acousticness.x >= anchor_traits$acoustic_min - 0.05,
+    acousticness.x <= anchor_traits$acoustic_max + 0.05,
+    danceability.x >= anchor_traits$dance_min - 0.05,
+    danceability.x <= anchor_traits$dance_max + 0.05
+  ) %>%
+  distinct(track_id, track_name, artist_name)
+```
+
+Step6
+
+```{r}
+# Optional: Songs with similar valence (positivity)
+valence_range <- range(anchor_songs$valence.x, na.rm = TRUE)
+
+vibe_matches <- combined_data %>%
+  filter(
+    valence.x >= valence_range[1] - 0.1,
+    valence.x <= valence_range[2] + 0.1,
+    !track_id %in% anchor_ids
+  ) %>%
+  distinct(track_id, track_name, artist_name)
+```
+
+Step7
+
+```{r}
+# Combine all sets
+final_candidates <- bind_rows(
+  playlist_overlap_songs,
+  harmonic_matches,
+  same_artist_songs,
+  similar_trait_songs,
+  vibe_matches
+) %>%
+  distinct(track_id, track_name, artist_name) %>%
+  slice_head(n = 20)
+
+final_candidates
+
+```
+
+Step - Combine and select top 20 songs
+
+```{r}
+# Step – Build each match group
+
+# Match songs by same artist
+artist_matches <- combined_data %>%
+  filter(
+    artist_name %in% anchor_songs$artist_name,
+    !track_id %in% anchor_ids
+  ) %>%
+  distinct(track_id, track_name, artist_name)
+
+# Match songs by same release year
+yearstyle_matches <- combined_data %>%
+  filter(
+    year.x %in% anchor_songs$year.x,
+    !track_id %in% anchor_ids
+  ) %>%
+  distinct(track_id, track_name, artist_name)
+
+# Match songs that appear on same playlists as anchor songs
+cooccurrence_matches <- combined_data %>%
+  filter(
+    playlist_id %in% (
+      combined_data %>%
+        filter(track_id %in% anchor_ids) %>%
+        pull(playlist_id)
+    ),
+    !track_id %in% anchor_ids
+  ) %>%
+  distinct(track_id, track_name, artist_name)
+
+# Combine all matches
+all_matches <- bind_rows(
+  harmonic_matches,
+  artist_matches,
+  yearstyle_matches,
+  cooccurrence_matches
+) %>%
+  distinct(track_id, .keep_all = TRUE) %>%
+  filter(!track_id %in% anchor_ids)
+```
+
+Step - Slice top 20 (based on popularity or appearances — your call!)
+
+```{r}
+final_candidates <- all_matches %>%
+  left_join(
+    combined_data %>%
+      select(
+        track_id,
+        popularity = popularity.x,
+        danceability = danceability.x,
+        valence = valence.x   # 👈 ADD THIS!
+      ),
+    by = "track_id"
+  ) %>%
+  distinct(track_id, track_name, artist_name, .keep_all = TRUE) %>%
+  arrange(desc(popularity)) %>%
+  slice_head(n = 20)
+```
+
+Step - Preview your playlist
+
+```{r}
+library(DT)
+
+datatable(
+  final_candidates %>%
+    select(track_name, artist_name, popularity),
+  options = list(
+    pageLength = 20,
+    autoWidth = TRUE,
+    dom = 't'
+  ),
+  rownames = FALSE,
+  class = 'cell-border stripe hover'
+) %>%
+  formatStyle(
+    columns = c("track_name", "artist_name", "popularity"),
+    backgroundColor = '#121212',
+    color = '#00FF00'
+  ) %>%
+  htmlwidgets::onRender("
+    function(el, x) {
+      $(el).parent().find('label').css('color', '#00FF00');
+      $(el).parent().find('input[type=search]').css('color', '#00FF00');
+      $(el).parent().find('input[type=search]').css('background-color', '#121212');
+      $(el).parent().find('select').css('color', '#00FF00');
+      $(el).parent().find('select').css('background-color', '#121212');
+    }
+  ")
+```
+
+# Task 7
+
+Step1
+
+```{r}
+ultimate_playlist <- final_candidates %>%
+  arrange(danceability, desc(popularity)) %>%
+  slice(1:12)
+```
+
+Step2
+
+```{r}
+playlist_title <- "Neon Nights: A Vibe-Driven Ride"
+
+```
+
+Step3
+
+```{r}
+# Add track order again just in case
+ultimate_playlist <- final_candidates %>%
+  mutate(track_order = row_number())
+
+# Now plot valence (emotional arc)
+ggplot(ultimate_playlist, aes(x = factor(track_order), y = valence, group = 1)) +
+  geom_line(color = "#00FF00", size = 1.2) +
+  geom_point(color = "white", size = 3) +
+  labs(
+    title = "Emotional Arc: Valence Across Playlist",
+    x = "Track Order",
+    y = "Valence (Positivity)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = "#121212", color = NA),
+    panel.grid.major = element_line(color = "white", linewidth = 0.3),
+    axis.text = element_text(color = "#00FF00"),
+    axis.title = element_text(color = "#00FF00"),
+    plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
+  )
+```
+
+Step4 (Description about the playlist)
+
+**Title**: *Neon Nights: A Vibe-Driven Ride*\
+**Description**: A playlist that flows like a nighttime city drive — starting mellow, building in tempo and energy, and fading into reflective tones.\
+**Design Principles**:
+
+-   Balanced valence for emotional shifts
+
+-   Harmonic flow using similar keys
+
+-   Features 3 underrated tracks & 2 songs I had never heard before
+
+-   Anchored on *HUMBLE.* and *White Iverson*
 
 # Bonus Track 🎞️
 

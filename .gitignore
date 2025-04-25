@@ -7,3 +7,17 @@ data/mp01/nyc_payroll_cleaned.csv
 local_data/mp01/nyc_payroll_cleaned.csv
 local_data/mp01/nyc_payroll_export.csv
 data/playlists_raw.rds
+**/.quarto/*
+.Rproj.user
+data/**
+**/*_cache/*
+*_files/*
+**/*_freeze/*
+**/*tsv*
+**/*csv*
+**/*xlsx*
+**/*zip
+**/*pdf
+.DS_Store
+.Rhistory
+/.quarto/*
