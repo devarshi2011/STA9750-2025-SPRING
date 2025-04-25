@@ -8,6 +8,7 @@ subtitle: "Where Music Meets Analytics"
 author: "Dev Lala"
 format:
   html:
+    embed-resources: true
     code-fold: true
     code-summary: "Show the code"
     theme:
@@ -203,7 +204,7 @@ playlists_raw <- load_playlists(n_files = 5)
 saveRDS(playlists_raw, "data/playlists_raw.rds")
 ```
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, include=FALSE}
 # Load necessary libraries
 library(purrr)
 library(dplyr)
@@ -1021,7 +1022,7 @@ vibe_matches <- combined_data %>%
 
 Step 7
 
-```{r}
+```{r, include=FALSE}
 # Combine all sets
 final_candidates <- bind_rows(
   playlist_overlap_songs,
