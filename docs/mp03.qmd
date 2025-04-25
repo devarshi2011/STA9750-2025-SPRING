@@ -290,7 +290,9 @@ datatable(
 
 # Exploring the Tracks 🔍 🎵
 
-1.  How many distinct tracks and artists are represented in the playlist data?
+With the data cleaned and ready to groove, this task dives into the world of playlists and track stats to answer a series of focused questions. From identifying chart-toppers and dance floor magnets to spotting missing track data and uncovering playlist trends, this exploration transforms raw data into rhythmic revelations.
+
+### 1️⃣ How many distinct tracks and artists are represented in the playlist data?
 
 ```{r}
 library(dplyr)
@@ -335,7 +337,7 @@ datatable(
   ")
 ```
 
-2.  What are the 5 most popular tracks in the playlist data?
+### 2️⃣ What are the 5 most popular tracks in the playlist data?
 
 ```{r}
 library(dplyr)
@@ -373,7 +375,7 @@ datatable(
   ")
 ```
 
-3.  What is the most popular track in the playlist data that *does not have a corresponding entry in the song characteristics* data?
+### 3️⃣ What is the most popular track in the playlist data that does not have a corresponding entry in the song characteristics data?
 
 ```{r}
 library(dplyr)
@@ -421,7 +423,7 @@ datatable(
   ")
 ```
 
-4.  According to the song characteristics data, what is the most “danceable” track? How often does it appear in a playlist?
+### 4️⃣ According to the song characteristics data, what is the most “danceable” track? How often does it appear in a playlist?
 
 ```{r}
 library(dplyr)
@@ -509,7 +511,7 @@ datatable(
 
 According to the song characteristics data, the most danceable track is "Funky Cold Medina". However, it has only one appearance in the playlists from the playlist dataset.
 
-5.  Which playlist has the longest average track length?
+### 5️⃣ Which playlist has the longest average track length?
 
 ```{r}
 library(dplyr)
@@ -549,7 +551,7 @@ datatable(
   ")
 ```
 
-6.  What is the most popular playlist on Spotify?
+### 6️⃣ What is the most popular playlist on Spotify?
 
 ```{r}
 library(dplyr)
@@ -591,6 +593,8 @@ datatable(
 
 # Visualizing the Vibe 🎧📊
 
+In "Visualizing the Vibe," the focus is on using clear and effective visualizations to explore the characteristics of popular songs. Through carefully chosen charts, this task answers key questions about the data, with each step explained in a straightforward manner. Key findings are highlighted, ensuring they are placed in context for easy understanding and insightful interpretation. The goal is to present the data in a way that is both informative and visually appealing, making complex patterns accessible without overwhelming the reader
+
 ```{r, message=FALSE, warning=FALSE}
 #| label: load-playlists
 #| message: false
@@ -609,7 +613,7 @@ combined_data <- rectified %>%
 head(combined_data)
 ```
 
-Q1 Is the popularity column correlated with the number of playlist appearances? If so, to what degree?
+### 1️⃣ Is the popularity column correlated with the number of playlist appearances? If so, to what degree?
 
 ```{r, message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -650,7 +654,7 @@ print(p)
 
 **Analysis** - This boxplot shows that tracks appearing in more playlists generally have higher Spotify popularity scores. Median popularity rises with playlist appearances, especially beyond 20. Still, the wide range within each group suggests that **playlist exposure helps, but is not the only factor** driving popularity.
 
-### In what year were the most popular songs released?
+### 2️⃣ In what year were the most popular songs released?
 
 ```{r}
 #| label: prep-yearly-counts
@@ -690,7 +694,7 @@ print (s)
 
 **Analysis** - Most popular songs were released after 2015, with a sharp rise in recent years. This aligns with how newer music dominates playlists due to recency bias and platform algorithms.
 
-### In what year did danceability peak?
+### 3️⃣ In what year did danceability peak?
 
 ```{r, eval=interactive(), echo=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -739,7 +743,7 @@ knitr::include_graphics("danceability_trends.gif")
 
 **Analysis -** Danceability of popular songs steadily increased over time, peaking around **2019–2020**. This reflects the shift toward more rhythm-driven, upbeat music — possibly influenced by streaming-era pop, TikTok trends, and global dance tracks dominating the charts.
 
-### Which decade is most represented on user playlists?
+### 4️⃣ Which decade is most represented on user playlists?
 
 ```{r, message=FALSE, warning=FALSE}
 library(dplyr)
@@ -773,7 +777,9 @@ print (d)
 
 **Analysis** - The **2010s** dominate user playlists, followed by the 2000s. This reflects user preferences skewing toward more recent decades, likely due to recency, nostalgia, and streaming platform curation that favors modern music.
 
-### Polar (circular) coordinates
+### 6️⃣ Polar (circular) coordinates
+
+Polar (circular) coordinates to visualize the frequency of musical keys across songs
 
 ```{r, message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -817,7 +823,7 @@ print (c)
 
 **Analysis** - The distribution of track lengths shows a clear peak between **3 to 4 minutes** (around **180–240 seconds**), with the most popular duration near **210 seconds**. This suggests that mid-length songs are the most playlist-friendly—long enough to feel complete but short enough to hold attention. Tracks that are very short or very long appear far less frequently, likely because they’re either intros/skits or extended versions not suited for general playlists.
 
-### What are the most popular track lengths? (Are short tracks, long tracks, or something in between most commonly included in user playlists
+### 7️⃣ What are the most popular track lengths? (Are short tracks, long tracks, or something in between most commonly included in user playlists
 
 ```{r, message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -854,7 +860,7 @@ print(t)
 
 ### Additional Exploratory questions
 
-#### 1️⃣ Are explicit songs more or less popular than non-explicit songs?
+#### ➡️  Are explicit songs more or less popular than non-explicit songs?
 
 ```{r}
 library(ggplot2)
@@ -888,7 +894,7 @@ print (e)
 
 **Analysis** - Looks like keeping it clean might actually pay off — non-explicit songs seem to have a slight edge in popularity. While both types are doing decently well, the clean tracks have a higher median and a chunkier upper range. So yeah, maybe being radio-friendly isn’t such a bad thing after all.
 
-#### 2️⃣ Do popular songs tend to be more “positive” in valence?
+#### ➡️  Do popular songs tend to be more “positive” in valence?
 
 ```{r}
 library(ggplot2)
@@ -923,6 +929,8 @@ print (v)
 
 ## From Anchor to Anthem: Crafting the Playlist 💿 ➡️ 🎧
 
+➡️ Selecting Anchor Songs
+
 ```{r}
 # Set anchor songs
 anchor_songs <- combined_data %>%
@@ -931,6 +939,8 @@ anchor_songs <- combined_data %>%
 # Get their track IDs for matching
 anchor_ids <- anchor_songs$track_id
 ```
+
+➡️ Finding songs on the same playlist as Anchor songs
 
 ```{r}
 # Find songs that appear on the same playlists
@@ -942,6 +952,8 @@ playlist_overlap_songs <- combined_data %>%
   distinct(track_id, track_name, artist_name)
 
 ```
+
+➡️ Finding songs with similar key and tempo
 
 ```{r}
 library(dplyr)
@@ -962,7 +974,7 @@ harmonic_matches <- combined_data %>%
   distinct(track_id, track_name, artist_name)
 ```
 
-Step4
+➡️ Finding songs by the same artist
 
 ```{r}
 # Filter songs by same artist
@@ -972,7 +984,7 @@ same_artist_songs <- combined_data %>%
   distinct(track_id, track_name, artist_name)
 ```
 
-Step5
+➡️ Finding songs with similar Release year, Acousticness and Danceability
 
 ```{r}
 library(dplyr)
@@ -1004,7 +1016,7 @@ similar_trait_songs <- combined_data %>%
   distinct(track_id, track_name, artist_name)
 ```
 
-Step 6
+➡️ Find songs with similar Valence (Custom Heuristic)
 
 ```{r}
 # Songs with similar valence (positivity)
@@ -1019,7 +1031,7 @@ vibe_matches <- combined_data %>%
   distinct(track_id, track_name, artist_name)
 ```
 
-Step 7
+➡️ Collecting matches from all Heuristics
 
 ```{r, include=FALSE}
 # Combine all sets
@@ -1036,7 +1048,7 @@ final_candidates <- bind_rows(
 final_candidates
 ```
 
-Step - Combine and select top 20 songs
+➡️ Select the final 20 songs with Popularity filter
 
 ```{r}
 # Match songs by same artist
@@ -1078,7 +1090,9 @@ all_matches <- bind_rows(
   filter(!track_id %in% anchor_ids)
 ```
 
-Step - Slice top 20
+## Echoes of Euphoria
+
+➡️ Displaying Final Playlist
 
 ```{r}
 final_candidates <- all_matches %>%
@@ -1096,8 +1110,6 @@ final_candidates <- all_matches %>%
   arrange(desc(popularity)) %>%
   slice_head(n = 20)
 ```
-
-Step - Preview the playlist
 
 ```{r}
 library(DT)
@@ -1131,6 +1143,18 @@ datatable(
 
 # The Ultimate Playlist 🎧 ▶️
 
+**Title**: *Echoes of Euphoria*\
+**Description**: "Echoes of Euphoria" is a carefully curated playlist designed to elevate your mood with a mix of upbeat and dreamy tracks. Perfect for moments when you want to feel energized and immersed in an uplifting musical journey.\
+**Design Principles**:
+
+-   Balanced valence for emotional shifts
+
+-   Harmonic flow using similar keys
+
+-   Features 3 underrated tracks & 2 songs I had never heard before
+
+-   Anchored on *HUMBLE.* and *White Iverson*
+
 Step 1
 
 ```{r}
@@ -1142,7 +1166,7 @@ ultimate_playlist <- final_candidates %>%
 Step 2
 
 ```{r}
-playlist_title <- "Neon Nights: A Vibe-Driven Ride"
+playlist_title <- "Echoes of Euphoria"
 ```
 
 Step 3
@@ -1172,18 +1196,6 @@ arc <- ggplot(ultimate_playlist, aes(x = factor(track_order), y = valence, group
   )
 print (arc)
 ```
-
-**Title**: *Echoes of Euphoria*\
-**Description**: "Echoes of Euphoria" is a carefully curated playlist designed to elevate your mood with a mix of upbeat and dreamy tracks. Perfect for moments when you want to feel energized and immersed in an uplifting musical journey.\
-**Design Principles**:
-
--   Balanced valence for emotional shifts
-
--   Harmonic flow using similar keys
-
--   Features 3 underrated tracks & 2 songs I had never heard before
-
--   Anchored on *HUMBLE.* and *White Iverson*
 
 # Bonus Track 🎞️
 
