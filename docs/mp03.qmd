@@ -41,13 +41,17 @@ Through the lens of Tracks and Stats, we explore top artists, trending songs, an
 
 # Main Chorus 🎶
 
--   Ingest and clean Spotify datasets to prepare for analysis.
+-   **Drop the Beat (Data Ingest & Cleaning):** Start by loading and cleaning up Spotify’s raw files — just like a DJ fine-tunes their setlist, we’re only keeping the clean stuff that’s ready to play.
 
--   Combine multiple data sources to create a richer dataset.
+<!-- -->
 
--   Perform descriptive analysis and visualize key trends.
+-   **Mashup Mode (Data Combination):** Merge different datasets to create a complete picture. One source gives us a glimpse, but combining them? That’s where the real story comes out.
 
--   Apply inferential modeling to build **The Ultimate Playlist**.
+-   **Now Playing: Trends (Descriptive Analysis):** Time to break down what the data’s actually saying — who’s trending, what’s gaining traction, and what stands out.
+
+-   **Visual Bops (Data Visualization):** Turn those stats into visuals that speak louder than numbers ever could. The goal? Charts that actually *hit*.
+
+-   **Remix the Hits (Inferential Modeling):** Use models to dig deeper and figure out what really makes a song pop — and from there, build *The Ultimate Playlist*.
 
 # **Data Soundcheck** 📀
 
@@ -68,7 +72,7 @@ library(DT)
 
 ```{r, message=FALSE, warning=FALSE}
 
-# Function to load and clean songs data
+#Load and clean songs data
 load_songs <- function() {
   dir_name <- file.path("data", "mp03")
   dir.create(dir_name, showWarnings = FALSE, recursive = TRUE)
@@ -100,7 +104,6 @@ load_songs <- function() {
   return(songs_clean)
 }
 
-# Load and clean the data
 songs <- load_songs()
 
 ```
@@ -113,7 +116,7 @@ datatable(
   options = list(
     pageLength = 10,
     autoWidth = TRUE,
-    dom = 'lfrtip' # keep 'Show entries' (l), 'Search' (f), table (t), pagination (p)
+    dom = 'lfrtip' 
   ),
   rownames = FALSE,
   class = 'cell-border stripe hover'
@@ -191,7 +194,7 @@ load_playlists <- function(n_files = 5) {
   return(playlists_list)
 }
 
-# Load only the first 5 files (you can change to 10 if you want)
+# Load only the first 5 files 
 playlists_raw <- load_playlists(n_files = 5)
 ```
 
@@ -207,8 +210,8 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 
-# Load your raw playlist data
-playlists_raw <- readRDS("data/playlists_raw.rds")  # 🔁 Update path if needed
+# Load raw playlist data
+playlists_raw <- readRDS("data/playlists_raw.rds")  
 
 # Function to strip Spotify URI prefixes
 strip_spotify_prefix <- function(x) {
@@ -264,7 +267,7 @@ datatable(
   options = list(
     pageLength = 10,
     autoWidth = TRUE,
-    dom = 'lfrtip' # show search, pagination, etc
+    dom = 'lfrtip' 
   ),
   rownames = FALSE,
   class = 'cell-border stripe hover'
@@ -429,7 +432,7 @@ most_danceable_track <- songs %>%
   arrange(desc(danceability)) %>%
   slice_head(n = 1)
 
-# Display it nicely
+# Display it 
 datatable(
   most_danceable_track,
   options = list(
@@ -477,7 +480,7 @@ q4_appearance_table <- tibble::tibble(
   Number_of_Appearances = most_danceable_appearance_count
 )
 
-# Display it with your neon black styling
+# Display it 
 datatable(
   q4_appearance_table,
   options = list(
@@ -559,7 +562,7 @@ most_popular_playlist <- rectified %>%
   arrange(desc(playlist_followers)) %>%
   slice_head(n = 1)
 
-# Displaying it in my dark green neon setup
+# Display it 
 datatable(
   most_popular_playlist,
   options = list(
@@ -586,7 +589,7 @@ datatable(
   ")
 ```
 
-Task 5
+# Visualizing the Vibe 🎧📊
 
 ```{r, message=FALSE, warning=FALSE}
 #| label: load-playlists
@@ -626,7 +629,7 @@ binned_data <- popularity_vs_appearances %>%
   ))
 
 # Step 2: Visualize the relationship
-ggplot(binned_data, aes(x = bin, y = popularity)) +
+p <- ggplot(binned_data, aes(x = bin, y = popularity)) +
   geom_boxplot(fill = "#00FF00", color = "white") +
   theme_minimal(base_size = 14) +
   theme(
@@ -642,6 +645,7 @@ ggplot(binned_data, aes(x = bin, y = popularity)) +
     x = "Number of Playlist Appearances (Binned)",
     y = "Track Popularity"
   )
+print(p)
 ```
 
 **Analysis** - This boxplot shows that tracks appearing in more playlists generally have higher Spotify popularity scores. Median popularity rises with playlist appearances, especially beyond 20. Still, the wide range within each group suggests that **playlist exposure helps, but is not the only factor** driving popularity.
@@ -664,7 +668,7 @@ yearly_counts <- popular_songs %>%
 ```
 
 ```{r, message=FALSE, warning=FALSE}
-ggplot(yearly_counts, aes(x = factor(year), y = n)) +
+s <- ggplot(yearly_counts, aes(x = factor(year), y = n)) +
   geom_col(fill = "#00FF00", alpha = 0.8) +
   labs(
     title = "Popular Songs by Year",
@@ -681,7 +685,7 @@ ggplot(yearly_counts, aes(x = factor(year), y = n)) +
     axis.title = element_text(color = "#00FF00"),
     plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
   )
-
+print (s)
 ```
 
 **Analysis** - Most popular songs were released after 2015, with a sharp rise in recent years. This aligns with how newer music dominates playlists due to recency bias and platform algorithms.
@@ -748,7 +752,7 @@ decade_counts <- rectified %>%
   count(decade)
 
 # Step 2: Plot the decade frequency
-ggplot(decade_counts, aes(x = factor(decade), y = n)) +
+d <- ggplot(decade_counts, aes(x = factor(decade), y = n)) +
   geom_col(fill = "#00FF00", alpha = 0.8) +
   labs(
     title = "Most Represented Decades on Spotify Playlists",
@@ -764,7 +768,7 @@ ggplot(decade_counts, aes(x = factor(decade), y = n)) +
     text = element_text(color = "#00FF00"),
     plot.title = element_text(face = "bold")
   )
-
+print (d)
 ```
 
 **Analysis** - The **2010s** dominate user playlists, followed by the 2000s. This reflects user preferences skewing toward more recent decades, likely due to recency, nostalgia, and streaming platform curation that favors modern music.
@@ -787,7 +791,7 @@ key_counts <- rectified %>%
   )
 
 # Polar plot
-ggplot(key_counts, aes(x = key_label, y = n, fill = key_label)) +
+c <- ggplot(key_counts, aes(x = key_label, y = n, fill = key_label)) +
   geom_bar(stat = "identity", color = "white", width = 1) +
   coord_polar(start = 0) +
   scale_fill_manual(values = rep("#00FF00", 12)) +
@@ -808,6 +812,7 @@ ggplot(key_counts, aes(x = key_label, y = n, fill = key_label)) +
     plot.title = element_text(color = "#00FF00", size = 16, face = "bold"),
     legend.position = "none"
   )
+print (c)
 ```
 
 **Analysis** - The distribution of track lengths shows a clear peak between **3 to 4 minutes** (around **180–240 seconds**), with the most popular duration near **210 seconds**. This suggests that mid-length songs are the most playlist-friendly—long enough to feel complete but short enough to hold attention. Tracks that are very short or very long appear far less frequently, likely because they’re either intros/skits or extended versions not suited for general playlists.
@@ -818,13 +823,13 @@ ggplot(key_counts, aes(x = key_label, y = n, fill = key_label)) +
 library(ggplot2)
 library(dplyr)
 
-# Convert milliseconds to seconds (if needed)
+# Convert milliseconds to seconds 
 lengths_data <- rectified %>%
   mutate(duration_sec = duration / 1000) %>%
   filter(duration_sec >= 60, duration_sec <= 600)  # Keep songs between 1–10 min
 
 # Histogram of track lengths
-ggplot(lengths_data, aes(x = duration_sec)) +
+t <- ggplot(lengths_data, aes(x = duration_sec)) +
   geom_histogram(fill = "#00FF00", color = "white", binwidth = 10) +
   labs(
     title = "Distribution of Track Lengths in Playlists",
@@ -840,6 +845,7 @@ ggplot(lengths_data, aes(x = duration_sec)) +
     axis.title = element_text(color = "#00FF00"),
     plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
   )
+print(t)
 ```
 
 **Analysis** - Most tracks in user playlists fall between **3 to 4 minutes**, with a noticeable peak around **210 seconds**. This suggests that songs of moderate length are the most commonly included—probably because they strike the right balance between listener attention and playlist flow. Very short or long tracks are much less frequent, indicating that mid-length songs tend to be the sweet spot for popularity.
@@ -859,7 +865,7 @@ combined_data <- combined_data %>%
   mutate(explicit_label = ifelse(explicit.x == 1, "Explicit", "Non-Explicit"))
 
 # Boxplot comparison
-ggplot(combined_data, aes(x = explicit_label, y = popularity.x, fill = explicit_label)) +
+e <- ggplot(combined_data, aes(x = explicit_label, y = popularity.x, fill = explicit_label)) +
   geom_boxplot(color = "white", width = 0.5) +
   scale_fill_manual(values = c("Explicit" = "#FF4500", "Non-Explicit" = "#00FF00")) +
   labs(
@@ -877,9 +883,10 @@ ggplot(combined_data, aes(x = explicit_label, y = popularity.x, fill = explicit_
     plot.title = element_text(color = "#00FF00", size = 16, face = "bold"),
     legend.position = "none"
   )
+print (e)
 ```
 
-**Analysis** -
+**Analysis** - Looks like keeping it clean might actually pay off — non-explicit songs seem to have a slight edge in popularity. While both types are doing decently well, the clean tracks have a higher median and a chunkier upper range. So yeah, maybe being radio-friendly isn’t such a bad thing after all.
 
 #### 2️⃣ Do popular songs tend to be more “positive” in valence?
 
@@ -892,7 +899,7 @@ combined_data <- combined_data %>%
   mutate(popularity_group = ifelse(popularity.x >= 60, "Popular", "Less Popular"))
 
 # Boxplot comparing valence (positivity)
-ggplot(combined_data, aes(x = popularity_group, y = valence.x, fill = popularity_group)) +
+v <- ggplot(combined_data, aes(x = popularity_group, y = valence.x, fill = popularity_group)) +
   geom_boxplot(color = "white") +
   scale_fill_manual(values = c("Popular" = "#00FF00", "Less Popular" = "#FF69B4")) +
   labs(
@@ -909,9 +916,10 @@ ggplot(combined_data, aes(x = popularity_group, y = valence.x, fill = popularity
     axis.title = element_text(color = "#00FF00"),
     plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
   )
+print (v)
 ```
 
-**Analysis** -
+**Analysis** - Turns out, popular songs do lean a *little* more positive, but it’s not a huge mood swing. The median valence score is just a bit higher for popular tracks, so while they’re vibing higher, it’s not all sunshine and rainbows. Basically, being a bop doesn't always mean being bright and bubbly — but it sure doesn't hurt.
 
 ## From Anchor to Anthem: Crafting the Playlist 💿 ➡️ 🎧
 
@@ -922,7 +930,6 @@ anchor_songs <- combined_data %>%
 
 # Get their track IDs for matching
 anchor_ids <- anchor_songs$track_id
-
 ```
 
 ```{r}
@@ -963,7 +970,6 @@ same_artist_songs <- combined_data %>%
   filter(artist_name %in% anchor_songs$artist_name) %>%
   filter(!track_id %in% anchor_ids) %>%
   distinct(track_id, track_name, artist_name)
-
 ```
 
 Step5
@@ -998,10 +1004,10 @@ similar_trait_songs <- combined_data %>%
   distinct(track_id, track_name, artist_name)
 ```
 
-Step6
+Step 6
 
 ```{r}
-# Optional: Songs with similar valence (positivity)
+# Songs with similar valence (positivity)
 valence_range <- range(anchor_songs$valence.x, na.rm = TRUE)
 
 vibe_matches <- combined_data %>%
@@ -1013,7 +1019,7 @@ vibe_matches <- combined_data %>%
   distinct(track_id, track_name, artist_name)
 ```
 
-Step7
+Step 7
 
 ```{r}
 # Combine all sets
@@ -1028,14 +1034,11 @@ final_candidates <- bind_rows(
   slice_head(n = 20)
 
 final_candidates
-
 ```
 
 Step - Combine and select top 20 songs
 
 ```{r}
-# Step – Build each match group
-
 # Match songs by same artist
 artist_matches <- combined_data %>%
   filter(
@@ -1075,7 +1078,7 @@ all_matches <- bind_rows(
   filter(!track_id %in% anchor_ids)
 ```
 
-Step - Slice top 20 (based on popularity or appearances — your call!)
+Step - Slice top 20
 
 ```{r}
 final_candidates <- all_matches %>%
@@ -1085,7 +1088,7 @@ final_candidates <- all_matches %>%
         track_id,
         popularity = popularity.x,
         danceability = danceability.x,
-        valence = valence.x   # 👈 ADD THIS!
+        valence = valence.x   
       ),
     by = "track_id"
   ) %>%
@@ -1094,7 +1097,7 @@ final_candidates <- all_matches %>%
   slice_head(n = 20)
 ```
 
-Step - Preview your playlist
+Step - Preview the playlist
 
 ```{r}
 library(DT)
@@ -1126,9 +1129,9 @@ datatable(
   ")
 ```
 
-# Task 7
+# The Ultimate Playlist 🎧 ▶️
 
-Step1
+Step 1
 
 ```{r}
 ultimate_playlist <- final_candidates %>%
@@ -1136,14 +1139,13 @@ ultimate_playlist <- final_candidates %>%
   slice(1:12)
 ```
 
-Step2
+Step 2
 
 ```{r}
 playlist_title <- "Neon Nights: A Vibe-Driven Ride"
-
 ```
 
-Step3
+Step 3
 
 ```{r}
 # Add track order again just in case
@@ -1151,7 +1153,7 @@ ultimate_playlist <- final_candidates %>%
   mutate(track_order = row_number())
 
 # Now plot valence (emotional arc)
-ggplot(ultimate_playlist, aes(x = factor(track_order), y = valence, group = 1)) +
+arc <- ggplot(ultimate_playlist, aes(x = factor(track_order), y = valence, group = 1)) +
   geom_line(color = "#00FF00", size = 1.2) +
   geom_point(color = "white", size = 3) +
   labs(
@@ -1168,12 +1170,11 @@ ggplot(ultimate_playlist, aes(x = factor(track_order), y = valence, group = 1)) 
     axis.title = element_text(color = "#00FF00"),
     plot.title = element_text(color = "#00FF00", size = 16, face = "bold")
   )
+print (arc)
 ```
 
-Step4 (Description about the playlist)
-
-**Title**: *Neon Nights: A Vibe-Driven Ride*\
-**Description**: A playlist that flows like a nighttime city drive — starting mellow, building in tempo and energy, and fading into reflective tones.\
+**Title**: *Echoes of Euphoria*\
+**Description**: "Echoes of Euphoria" is a carefully curated playlist designed to elevate your mood with a mix of upbeat and dreamy tracks. Perfect for moments when you want to feel energized and immersed in an uplifting musical journey.\
 **Design Principles**:
 
 -   Balanced valence for emotional shifts
@@ -1186,4 +1187,34 @@ Step4 (Description about the playlist)
 
 # Bonus Track 🎞️
 
-Catch a glimpse of the tracks in motion with these featured song videos.
+For this project, HUMBLE. by Kendrick Lamar serves as my anchor song, capturing the core themes I’m exploring. I also selected Take On Me by a-ha and The Scientist by Coldplay from my ultimate playlist to complement and expand on the project’s mood and message.
+
+```{=html}
+<iframe width="640" height="360" src="https://www.youtube.com/embed/tvTRZJ-4EyI?si=CGLD4MiXzQcOTFKN" frameborder="0" allowfullscreen></iframe>
+```
+
+```{=html}
+<iframe width="640" height="360" src="https://www.youtube.com/embed/djV11Xbc914?si=hhAZg3h6VsGUeR8" frameborder="0" allowfullscreen></iframe>
+```
+
+```{=html}
+<iframe width="640" height="360" src="https://www.youtube.com/embed/RB-RcX5DS5A?si=aBaezMFfSrmcYzGs" frameborder="0" allowfullscreen></iframe>
+```
+
+# Outro 🎶
+
+This project, "Tracks and Stats," has been an exciting journey where music meets analytics. From ingesting and cleaning Spotify datasets to uncovering trends in popularity, danceability, and playlist composition, we've explored the factors that make a song resonate with millions. Through descriptive analysis, visualizations, and inferential modeling, we’ve decoded the rhythm behind the stats.
+
+The result? A curated playlist, **”Echoes of Euphoria,”** that harmonizes data-driven insights with personal creativity. This playlist exemplifies how analytics can transform raw data into a cohesive musical narrative, blending tempo, energy, and valence for an unforgettable listening experience.
+
+As we close the loop, "Tracks and Stats" serves not only as a reflection of our love for music but also as a testament to the power of data in shaping experiences that resonate, inspire, and connect.
+
+Keep vibing, keep analyzing, and let the music play!
+
+## Echoes of Euphoria
+
+Spotify does not house clean versions for a lot of these songs.
+
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/7zUi7tsyA3eF1YNaNyIMn4?utm_source=generator" width="100%" height="380" frameborder="0" allowtransparency="true" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+
+</iframe>
