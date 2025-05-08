@@ -932,6 +932,7 @@ To create a cleaner and more cohesive national map, I repositioned Alaska and Ha
 #| warning: false
 #| include: true
 #| echo: true
+#| dev: "png"
 
 # Load libraries
 library(tigris)
@@ -1016,6 +1017,9 @@ Each arrow, anchored at a county's centroid, captures the direction and magnitud
 #| warning: false
 #| include: true
 #| echo: true
+#| fig.width: 10
+#| fig.height: 6
+#| dev: "png"
 
 library(tidyverse)
 library(janitor)
