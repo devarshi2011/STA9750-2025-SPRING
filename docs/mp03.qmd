@@ -860,7 +860,7 @@ print(t)
 
 ### Additional Exploratory questions
 
-#### ➡️  Are explicit songs more or less popular than non-explicit songs?
+#### ➡️ Are explicit songs more or less popular than non-explicit songs?
 
 ```{r}
 library(ggplot2)
@@ -894,7 +894,7 @@ print (e)
 
 **Analysis** - Looks like keeping it clean might actually pay off — non-explicit songs seem to have a slight edge in popularity. While both types are doing decently well, the clean tracks have a higher median and a chunkier upper range. So yeah, maybe being radio-friendly isn’t such a bad thing after all.
 
-#### ➡️  Do popular songs tend to be more “positive” in valence?
+#### ➡️ Do popular songs tend to be more “positive” in valence?
 
 ```{r}
 library(ggplot2)
