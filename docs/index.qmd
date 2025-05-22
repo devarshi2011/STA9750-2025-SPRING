@@ -53,6 +53,16 @@ leaflet() |>
 <p>Spotify Data: Curating the Echoes of Euphoria playlist.</p>
 </div>
 
+<div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
+<h3><a href="mp04.html" style="color: #00FF00; text-decoration: none;">🗳 Mini Project 04</a></h3>
+<p>Mapping Vote Shifts from 2020 to 2024 Across U.S. Counties.</p>
+</div>
+
+<div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
+<h3><a href="final Project.html" style="color: #00FF00; text-decoration: none;">🚉 Final Project</a></h3>
+<p>The New Normal Commute: Remote Work Meets the MTA.</p>
+</div>
+
 </div>
 
 ------

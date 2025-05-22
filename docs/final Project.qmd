@@ -1,0 +1,570 @@
+---
+title: "The New Normal Commute: Remote Work Meets the MTA"
+format: 
+  html:
+    css: MTAstyle.css
+    toc: true
+    toc-location: right
+    code-fold: true
+    code-summary: "Show the code"
+    echo: true
+    message: false    # suppress messages like "Attaching package"
+    warning: false    # suppress warnings
+editor: visual
+---
+
+![MTA Image Collage](images/mta_collage.png){fig-align="center" width="80%"}
+
+# Opening the Gates: The Ride Begins 🚉
+
+The COVID-19 pandemic significantly reshaped commuting patterns across New York City. With the rise of remote work and changing transit preferences, understanding how subway ridership has evolved provides valuable insights into urban mobility trends. This project explores the relationship between remote work prevalence and public transit usage across NYC ZIP codes from 2019 to 2023.
+
+# Setting the Destination 🎯
+
+This project aims to :
+
+-   **Analyze ridership trends** across three key time periods:
+
+    i\) Pre-COVID era (2019) – baseline transit behavior before the pandemic.
+
+    ii\) Core COVID era (2020–2021) – when ridership drastically declined.
+
+    iii\) Work-From-Home era (2022–2023) – during the shift to hybrid and remote work models.
+
+-   **Compare changes in subway ridership** at the ZIP-code level to understand geographic variation in recovery patterns.
+
+-   **Integrate U.S. Census data** to assess the share of remote workers in each ZIP code and how that correlates with changes in ridership.
+
+-   **Generate data-driven insights** that can inform transit planning, policy decisions, and urban development strategies post-pandemic.
+
+# The Data Express 🚆
+
+This analysis combines two key datasets:
+
+### 🚇 **MTA Monthly Ridership Data:**
+
+This data set provides comprehensive monthly records of subway usage across all stations in the NYC transit system, beginning in January 2019. It includes data on the number of entries and exits by station and service line, making it possible to observe ridership patterns over time and across different parts of the city. This dataset allows us to analyze how subway usage has evolved during three key periods: the Pre-COVID era (2019), the Core COVID era (2020–2021), and the Work-From-Home era (2022–2023). By aggregating this data by ZIP code, we can identify shifts in transit behavior at a more localized level.
+
+### 🚉 **US Census Bureau (**5-Year Estimates for 2023):
+
+This data set offers detailed commuting statistics at the ZIP-code level. Specifically, it includes the percentage of the population in each ZIP code that reported working from home. This data helps us understand the geographic distribution of remote work across New York City. Because it reflects responses collected between 2018 and 2023, it captures the long-term shift in work behavior influenced by the pandemic.
+
+By combining these data sets, we can compare trends in subway ridership with the prevalence of remote work in different areas, allowing for a deeper analysis of how telecommuting may have impacted public transportation usage and recovery in NYC.
+
+# From Turnstiles to Tables 🗂️
+
+Before diving into analysis, we first load and clean our data sets—transforming raw MTA ridership counts and census commuting stats into structured tables ready for exploration. Think of it as converting swipe-ins into insights.
+
+### 🚇 **MTA Monthly Ridership Data set**
+
+```{r}
+#Loading required libraries
+library(readr)
+library(dplyr)
+library(lubridate)
+library(tidyr)
+
+
+mta_data <- read_csv("https://data.ny.gov/api/views/xfre-bxip/rows.csv?accessType=DOWNLOAD")
+
+#Cleaning and preparing the dataset
+mta_clean <- mta_data %>%
+  mutate(Year = year(Month)) %>%
+  filter(Year %in% c(2019, 2023)) %>%
+  group_by(Agency, Year) %>%
+  summarise(Total_Ridership = sum(Ridership, na.rm = TRUE), .groups = "drop")
+
+```
+
+```{r}
+#Loading required packages
+library(dplyr)
+library(tidyr)
+
+#Creating mta clean data
+mta_clean <- mta_data %>%
+  mutate(Year = lubridate::year(Month)) %>%
+  filter(Year %in% c(2019, 2023)) %>%
+  group_by(Agency, Year) %>%
+  summarise(Total_Ridership = sum(Ridership, na.rm = TRUE), .groups = "drop")
+
+#2nd Step: creating ridership change data
+ridership_change <- mta_clean %>%
+  pivot_wider(names_from = Year, values_from = Total_Ridership) %>%
+  mutate(Pct_Change = round((`2023` - `2019`) / `2019` * 100, 1))
+
+```
+
+```{r}
+library(DT)
+
+datatable(
+  ridership_change,
+  options = list(
+    pageLength = 8,
+    autoWidth = TRUE,
+    dom = 'lfrtip'
+  ),
+  rownames = FALSE,
+  class = 'stripe hover',
+  style = 'default'
+) %>%
+  formatStyle(
+    columns = names(ridership_change),
+    backgroundColor = '#2360A5',
+    color = 'white',
+    border = '1px solid white',
+    `text-align` = 'center',
+    padding = '8px'
+  ) %>%
+  htmlwidgets::onRender("
+    function(el, x) {
+      $(el).parent().find('label').css('color', 'white');
+      $(el).parent().find('input[type=search]').css('color', 'white');
+      $(el).parent().find('input[type=search]').css('background-color', '#2360A5');
+      $(el).parent().find('select').css('color', 'white');
+      $(el).parent().find('select').css('background-color', '#2360A5');
+      $(el).find('thead th').css({
+        'background-color': '#2360A5',
+        'color': 'white',
+        'border': '1px solid white',
+        'text-align': 'center'
+      });
+    }
+  ")
+
+```
+
+### 🚉 **US Census Bureau (**5-Year Estimates for 2023):
+
+```{r}
+#Loading second dataset 
+census_raw <- readr::read_csv("ACSDT5Y2023.B08128-Data.csv", skip = 1)
+```
+
+```{r}
+library(dplyr)
+library(stringr)
+
+remote_work <- census_raw %>%
+  select(
+    ZIP = `Geographic Area Name`,
+    Total_Workers = `Estimate!!Total:`,
+    Work_From_Home = `Estimate!!Total:!!Worked from home:`  # adjust if needed
+  ) %>%
+  filter(!is.na(Total_Workers)) %>%
+  mutate(
+    ZIP = str_extract(ZIP, "\\d{5}"),
+    Total_Workers = as.numeric(Total_Workers),
+    Work_From_Home = as.numeric(Work_From_Home),
+    Remote_Work_Pct = round((Work_From_Home / Total_Workers) * 100, 1)
+  )
+
+```
+
+```{r}
+library(DT)
+
+#Cleaning column names for displaying 
+remote_work_display <- remote_work %>%
+  rename(
+    "ZIP" = ZIP,
+    "Total Workers" = Total_Workers,
+    "Work From Home" = Work_From_Home,
+    "Remote Work %" = Remote_Work_Pct
+  )
+
+#Displaying interactive table with clean column headers
+datatable(
+  remote_work_display,
+  options = list(
+    pageLength = 8,
+    autoWidth = TRUE,
+    dom = 'lfrtip'
+  ),
+  rownames = FALSE,
+  class = 'stripe hover',
+  style = 'default'
+) %>%
+  formatStyle(
+    columns = names(remote_work_display),
+    backgroundColor = '#2360A5',
+    color = 'white',
+    border = '1px solid white',
+    `text-align` = 'center',
+    padding = '8px'
+  ) %>%
+  htmlwidgets::onRender("
+    function(el, x) {
+      $(el).parent().find('label').css('color', 'white');
+      $(el).parent().find('input[type=search]').css('color', 'white');
+      $(el).parent().find('input[type=search]').css('background-color', '#2360A5');
+      $(el).parent().find('select').css('color', 'white');
+      $(el).parent().find('select').css('background-color', '#2360A5');
+      $(el).find('thead th').css({
+        'background-color': '#2360A5',
+        'color': 'white',
+        'border': '1px solid white',
+        'text-align': 'center'
+      });
+    }
+  ")
+
+
+```
+
+# Tracking the Route: Questions on the Line 🗺️
+
+This section outlines the key questions guiding our analysis—each one a stop along the journey to understanding how remote work has influenced subway ridership and reshaped NYC’s transit dynamics.
+
+## 🚌 Main Research Question
+
+### **How has remote work reshaped transit ridership trends and recovery patterns across NYC ZIP codes and MTA agencies?**
+
+To explore this question in depth, we break it down into three targeted sub-questions:
+
+#### 🛤️ Sub-Question 1
+
+**Which phase of the pandemic had the steepest ridership drop, and how did the recovery vary across agencies?**
+
+This helps identify when ridership fell the most and which agencies bounced back faster across different pandemic stages.
+
+#### 🛤️ Sub-Question 2
+
+**How do ZIP codes with higher remote work rates compare to others in terms of their reliance on transit agencies that experienced the greatest ridership losses?**
+
+This explores whether remote-heavy areas were more dependent on transit modes that faced steeper declines.
+
+#### 🛤️ Sub-Question 3
+
+**Does higher remote work adoption in a ZIP code correlate with deeper transit ridership loss?**
+
+This assesses whether greater levels of remote work are linked to sharper drops in transit usage.
+
+🛤️ Sub-Question 4
+
+**How did monthly ridership trends evolve over time across different MTA agencies from 2019 to 2023, and which modes recovered faster?**
+
+This helps track how each agency’s ridership changed over time and which modes rebounded more quickly.
+
+### 🛤️ **Sub(way) question 1:** Which phase of the pandemic had the steepest ridership drop, and how did the recovery vary across agencies?
+
+```{r}
+library(dplyr)
+library(lubridate)
+
+#Adding columns to mta_data
+mta_phases <- mta_data %>%
+  mutate(
+    Year = year(Month),
+    Phase = case_when(
+      Year == 2019 ~ "Pre-COVID",
+      Year %in% c(2020, 2021) ~ "Core COVID",
+      Year %in% c(2022, 2023) ~ "Post-COVID"
+    )
+  ) %>%
+  filter(!is.na(Phase))  # exclude any missing phase rows
+
+```
+
+```{r}
+phase_summary <- mta_phases %>%
+  group_by(Agency, Phase) %>%
+  summarise(
+    Avg_Monthly_Ridership = mean(Ridership, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+```
+
+```{r}
+#Transforming phase_summary into wide format and compute ridership drop from Pre-COVID to Core COVID, 
+phase_change <- phase_summary %>%
+  tidyr::pivot_wider(names_from = Phase, values_from = Avg_Monthly_Ridership) %>%
+  dplyr::mutate(
+    Drop_from_Pre_to_Core = round((`Core COVID` - `Pre-COVID`) / `Pre-COVID` * 100, 1),
+    Recovery_from_Core_to_Post = round((`Post-COVID` - `Core COVID`) / `Core COVID` * 100, 1)
+  )
+
+```
+
+```{r}
+library(DT)
+
+datatable(
+  phase_change,  
+  options = list(
+    pageLength = 8,
+    autoWidth = TRUE,
+    dom = 'lfrtip'
+  ),
+  rownames = FALSE,
+  class = 'stripe hover',
+  style = 'default'
+) %>%
+  formatStyle(
+    columns = names(phase_change),
+    backgroundColor = '#2360A5',
+    color = 'white',
+    border = '1px solid white',
+    `text-align` = 'center',
+    padding = '8px'
+  ) %>%
+  htmlwidgets::onRender("
+    function(el, x) {
+      $(el).parent().find('label').css('color', 'white');
+      $(el).parent().find('input[type=search]').css('color', 'white');
+      $(el).parent().find('input[type=search]').css('background-color', '#2360A5');
+      $(el).parent().find('select').css('color', 'white');
+      $(el).parent().find('select').css('background-color', '#2360A5');
+      $(el).find('thead th').css({
+        'background-color': '#2360A5',
+        'color': 'white',
+        'border': '1px solid white',
+        'text-align': 'center'
+      });
+    }
+  ")
+
+
+```
+
+```{r}
+library(ggplot2)
+
+#Reshaping data for plotting
+plot_data <- phase_change %>%
+  select(Agency, Drop_from_Pre_to_Core, Recovery_from_Core_to_Post) %>%
+  pivot_longer(
+    cols = starts_with("Drop_") | starts_with("Recovery_"),
+    names_to = "Metric",
+    values_to = "Percent_Change"
+  ) %>%
+  mutate(
+    Metric = case_when(
+      Metric == "Drop_from_Pre_to_Core" ~ "Drop: Pre-COVID to Core",
+      Metric == "Recovery_from_Core_to_Post" ~ "Recovery: Core to Post"
+    )
+  )
+
+#Creating grouped bar chart
+ggplot(plot_data, aes(x = Agency, y = Percent_Change, fill = Metric)) +
+  geom_col(position = "dodge") +
+  geom_text(aes(label = paste0(Percent_Change, "%")), vjust = -0.5, position = position_dodge(0.9)) +
+  scale_fill_manual(values = c(
+    "Drop: Pre-COVID to Core" = "#d62728",      # red
+    "Recovery: Core to Post" = "#2ca02c"        # green
+  )) +
+  labs(
+    title = "Transit Ridership Drop and Recovery by Agency",
+    x = "MTA Agency",
+    y = "Percent Change",
+    fill = "Phase Transition"
+  ) +
+  theme_minimal()
+
+```
+
+**Analysis:** The steepest drop in ridership happened from **Pre-COVID to Core COVID**, with **MNR (-66.6%)** and **LIRR (-64.1%)** hit the hardest. Recovery from **Core to Post-COVID** varied — **MNR (88.3%)** and **LIRR (80.2%)** rebounded the most, while **BT (18%)** and **NYCT Bus (31.3%)** saw slower recoveries.
+
+### 🛤️ **Sub(way) question 2:** **How do ZIP codes with higher remote work rates compare to others in terms of their reliance on transit agencies that experienced the greatest ridership losses?**
+
+```{r}
+#Creating a lookup table: which ZIP likely uses which MTA agency
+zip_mode_map <- tibble::tibble(
+  ZIP = c("10001", "10002", "10003", "10004", "10005"),
+  Likely_Mode = c("Subway", "Subway", "NYCT Bus", "Subway", "Subway")
+)
+
+```
+
+```{r}
+#Merging ZIP mode with remote work %
+zip_remote_mode <- remote_work %>%
+  inner_join(zip_mode_map, by = "ZIP")
+
+```
+
+```{r}
+#Merging in agency-level ridership % change
+zip_remote_mode <- zip_remote_mode %>%
+  left_join(ridership_change %>% select(Agency, Pct_Change),
+            by = c("Likely_Mode" = "Agency"))
+
+```
+
+```{r}
+library(DT)
+
+#Creating a display table with cleaned column names (for aesthetics only)
+colnames(ridership_change) <- gsub("_", " ", colnames(ridership_change))
+
+datatable(
+  ridership_change,
+  options = list(
+    pageLength = 8,
+    autoWidth = TRUE,
+    dom = 'lfrtip'
+  ),
+  rownames = FALSE,
+  class = 'stripe hover',
+  style = 'default'
+) %>%
+  formatStyle(
+    columns = names(ridership_change),
+    backgroundColor = '#2360A5',
+    color = 'white',
+    border = '1px solid white',
+    `text-align` = 'center',
+    padding = '8px'
+  ) %>%
+  htmlwidgets::onRender("
+    function(el, x) {
+      $(el).parent().find('label').css('color', 'white');
+      $(el).parent().find('input[type=search]').css('color', 'white');
+      $(el).parent().find('input[type=search]').css('background-color', '#2360A5');
+      $(el).parent().find('select').css('color', 'white');
+      $(el).parent().find('select').css('background-color', '#2360A5');
+      $(el).find('thead th').css({
+        'background-color': '#2360A5',
+        'color': 'white',
+        'border': '1px solid white',
+        'text-align': 'center'
+      });
+    }
+  ")
+
+
+
+```
+
+```{r}
+library(ggplot2)
+
+#Creating ggplot
+ggplot(zip_remote_mode, aes(x = reorder(ZIP, Remote_Work_Pct), y = Remote_Work_Pct, fill = Likely_Mode)) +
+  geom_col() +
+  geom_text(aes(label = paste0(Pct_Change, "% drop")), vjust = -0.5, size = 3, color = "black") +
+  scale_fill_manual(
+    values = c(
+      "Subway" = "#2E86AB",    # bold blue
+      "NYCT Bus" = "#F26419"   # vivid orange
+    )
+  ) +
+  labs(
+    title = "Remote Work Rates by ZIP and Associated Ridership Loss",
+    x = "ZIP Code",
+    y = "Remote Work % (2023)",
+    fill = "Transit Mode"
+  ) +
+  theme_minimal()
+
+```
+
+**Analysis:** ZIP code **10003**, which had the **highest remote work rate (\~26%)**, also experienced the **largest ridership drop (-38.8%)**, particularly on the **Subway**. In comparison, ZIPs like **10001–10005** with slightly lower remote work rates (20–25%) saw **smaller, consistent ridership losses (-32.1%)** on **NYCT Bus**. This pattern suggests that areas with more remote workers tend to rely on transit modes that faced steeper declines, especially subways.
+
+### 🛤️ **Sub(way)** question 3: **Does higher remote work adoption in a ZIP code correlate with deeper transit ridership loss?**
+
+```{r}
+library(ggplot2)
+
+ggplot(zip_remote_mode, aes(x = Remote_Work_Pct, y = Pct_Change, color = Likely_Mode)) +
+  geom_point(size = 4) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  scale_color_manual(
+    values = c(
+      "Subway" = "#007FFF",    # bright blue
+      "NYCT Bus" = "#FFD300"   # bright yellow
+    )
+  ) +
+  labs(
+    title = "Does Higher Remote Work Lead to Greater Transit Ridership Loss?",
+    x = "Remote Work % by ZIP (2023)",
+    y = "Transit Ridership Change (2019–2023)",
+    color = "Transit Mode"
+  ) +
+  theme_minimal()
+
+```
+
+**Analysis:** The scatter plot reveals a **negative relationship** between ZIP-level remote work percentages and the recovery of their primary transit mode. ZIPs with **higher remote work rates** tend to be associated with **greater ridership declines** between 2019 and 2023. This suggests that as more people work from home, **commute-dependent transit modes like the Subway and NYCT Bus** have struggled to recover pre-pandemic ridership levels.
+
+### 🛤️ **Sub(way)** question 4: **How did monthly ridership trends evolve over time across different MTA agencies from 2019 to 2023, and which modes recovered faster?**
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(gganimate)
+library(scales)  
+
+#Preparing the data
+mta_monthly <- mta_data %>%
+  mutate(Year = year(Month)) %>%
+  filter(Year >= 2019) %>%
+  group_by(Month, Agency) %>%
+  summarise(Monthly_Ridership = sum(Ridership, na.rm = TRUE), .groups = "drop")
+
+#Creating Animated line plot
+ggplot(mta_monthly, aes(x = Month, y = Monthly_Ridership, color = Agency)) +
+  geom_line(size = 1.2) +
+  scale_color_manual(values = c(
+    "Subway" = "#1f77b4",     # blue
+    "NYCT Bus" = "#ff7f0e",   # orange
+    "MTA Bus" = "#d62728",    # red
+    "LIRR" = "#2ca02c",       # green
+    "MNR" = "#9467bd",        # purple
+    "B&T" = "#bcbd22"         # yellow-green
+  )) +
+  scale_y_continuous(labels = label_comma()) +  # Show full numbers
+  labs(
+    title = 'Monthly MTA Ridership by Agency: {frame_along}',
+    x = "Month",
+    y = "Monthly Ridership",
+    color = "Agency"
+  ) +
+  theme_minimal() +
+  transition_reveal(Month)
+
+
+```
+
+**Analysis:** From 2019 to 2023, all MTA agencies saw a sharp drop in monthly ridership during the core COVID period. **Subway** and **MNR** had the most noticeable declines but also showed strong recovery trends in recent years. In contrast, **NYCT Bus** and **MTA Bus** had smaller drops but flatter recovery curves, indicating slower bounce-back. Overall, **commuter rail services** (like LIRR and MNR) demonstrated faster recovery compared to local bus services.
+
+# Last Stop: Conclusion 🚉
+
+This journey through NYC’s transit data highlights just how dramatically the pandemic reshaped daily ridership. The steepest declines occurred during the **Core COVID** phase, with **Metro-North (MNR)** and **Staten Island Railway (SIR)** seeing drops of over **66%**, while bus services like **BT** experienced a more moderate **-14.9%** drop.
+
+But the story doesn’t end there — recovery patterns varied. **MNR** bounced back with an **88.3%** increase from core to post-COVID periods, while **NYCT Bus** only saw a **31.3%** recovery. ZIP code **10003**, which had the **highest remote work rate (\~26%)**, also experienced the **deepest transit drop (-38.8%)**, especially on the **Subway**.
+
+In short, neighborhoods with more remote workers tended to rely on transit modes that faced sharper losses and slower rebounds. As hybrid work becomes the norm, the MTA must rethink how it serves a city where the 9-to-5 commute is no longer universal.
+
+# All Tracks Lead to the Main Question 🚈
+
+By breaking our analysis into four specific sub-questions, we were able to explore different sides of how remote work has affected NYC transit. Each of us focused on a different part, from when ridership dropped the most, to how recovery looked across agencies, and how ZIP codes with higher remote work rates were impacted more than others.
+
+This multi-layered approach allowed us to meaningfully address our central question: **“How has the rise of remote work since the COVID-19 pandemic impacted New York City subway ridership and transit system dynamics?”**
+
+What I found was pretty clear, places with more remote workers, like ZIP code 10003, saw steeper drops and slower recoveries, especially on the subway. On the other hand, commuter rail lines like MNR and LIRR bounced back faster even though they were hit hard during the peak of the pandemic. All in all, our sub-questions helped us connect the dots and get a better understanding of how remote work is shaping the way people commute in NYC today.
+
+# Highlights from the Ridership Route 🚦
+
+🚇 **Steepest Ridership Drop:** The largest decline happened during the **Core COVID** phase, with **MNR (-66.6%)** and **SIR (-66.4%)** being the most affected.
+
+🚇 **Recovery Trends:** **Commuter rail agencies** like MNR and LIRR showed the strongest bounce-back (**88.3%** and **80.2%**, respectively), while bus services like **BT** and **NYCT Bus** had slower recoveries.
+
+🚇 **Remote Work & Transit Loss:** ZIP code **10003**, with the highest remote work rate (\~26%), also experienced the **deepest drop in ridership (-38.8%)**, especially on the subway.
+
+🚇 **Geographic Patterns:** Areas with **lower remote work rates (20–25%)** showed more stable or moderate ridership loss (\~-32.1%), often relying more on **bus services**.
+
+🚇 **Long-Term Impact:** The shift toward remote work hasn’t just reduced transit usage — it’s **reshaped commuting patterns** across agencies, boroughs, and transit modes.
+
+# Future Transfers & Transit Moves 🚝
+
+🚊 **Adjust peak-hour service and fare models** to better align with hybrid work patterns and reduced 9-to-5 commuting.
+
+🚊 **Invest in last-mile connectivity** to support access in residential areas, especially where ridership recovery is slow.
+
+🚊 **Prioritize regional transit improvements** for commuter rail lines like MNR and LIRR, which are rebounding faster.
+
+🚊 **Use data-driven, ZIP-level insights** to guide service planning and adapt to evolving remote work trends.

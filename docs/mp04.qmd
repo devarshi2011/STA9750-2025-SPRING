@@ -1005,7 +1005,7 @@ p <- ggplot(combined) +
   annotate("text", x = 2900000, y = -1150000, label = "Hawaii", size = 5, fontface = "bold", hjust = 1) +
   annotate("segment", x = 2850000, xend = 2100000, y = -1150000, yend = -1500000,
          arrow = arrow(length = unit(0.15, "inches")), color = "black")
-print(p)
+
 
 ggsave("images/repositioned_map.png", p, width = 10, height = 6, dpi = 300)
 ```
@@ -1121,8 +1121,6 @@ map <- ggplot(combined) +
   annotate("text", x = 2900000, y = -1150000, label = "Hawaii", size = 5, fontface = "bold", hjust = 1) +
   annotate("segment", x = 2850000, xend = 2100000, y = -1150000, yend = -1500000,
            arrow = arrow(length = unit(0.15, "inches")), color = "black")
-
-print(map)
 
 ggsave("images/vote_shift_map.png", map, width = 10, height = 6, dpi = 300)
 ```
