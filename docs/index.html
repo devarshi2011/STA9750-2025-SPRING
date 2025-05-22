@@ -122,41 +122,98 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<style>
+.project-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 30px;
+  justify-content: flex-start;
+}
+
+.project-card {
+  flex: 1 1 250px;
+  background-color: var(--quarto-body-bg); /* uses morph’s light background */
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--quarto-border-color); /* uses theme’s default border */
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.05); /* soft shadow */
+  transition: transform 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  background-color: var(--quarto-hl-bg); /* subtle highlight on hover */
+}
+
+.project-card h3 a {
+  color: var(--quarto-link-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.project-card p {
+  color: var(--quarto-text-color);
+  margin-top: 10px;
+  font-size: 14px;
+}
+</style>
 <p>My name is Devarshi Lala, and I am an International Master’s of Business Analytics (concentration in Marketing Analytics) student at Baruch College’s Zicklin School of Business. I am currently in my second semester of college, graduating in January 2026. I completed my Bachelor of Management Studies in the year 2021 from Mumbai University.</p>
 <hr>
 <div class="cell">
 <div class="cell-output-display">
-<div class="leaflet html-widget html-fill-item" id="htmlwidget-3a609881c5eb4e996bec" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-3a609881c5eb4e996bec">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addPopups","args":[40.75028,-73.98333,"I am a Master's student at <b>Baruch College<\/b>!",null,null,{"maxWidth":300,"minWidth":50,"autoPan":true,"keepInView":false,"closeButton":true,"className":""}]}],"setView":[[40.75028,-73.98333],17,[]],"limits":{"lat":[40.75028,40.75028],"lng":[-73.98333,-73.98333]}},"evals":[],"jsHooks":[]}</script>
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-61747c3e28d8cc2826b9" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-61747c3e28d8cc2826b9">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addPopups","args":[40.75028,-73.98333,"I am a Master's student at <b>Baruch College<\/b>!",null,null,{"maxWidth":300,"minWidth":50,"autoPan":true,"keepInView":false,"closeButton":true,"className":""}]}],"setView":[[40.75028,-73.98333],17,[]],"limits":{"lat":[40.75028,40.75028],"lng":[-73.98333,-73.98333]}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <hr>
-<section id="explore-my-mini-projects" class="level2">
-<h2 class="anchored" data-anchor-id="explore-my-mini-projects">🎯 Explore My Mini Projects</h2>
-<div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 30px; justify-content: flex-start;">
-<div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
-<pre><code>&lt;h3&gt;&lt;a href="mp01.html" style="color: #00FF00; text-decoration: none;"&gt;📊 Mini Project 01&lt;/a&gt;&lt;/h3&gt;
-&lt;p style="color: #d0e6ff;"&gt;Student Performance: Academic predictors and trends.&lt;/p&gt;</code></pre>
+<section id="mini-projects" class="level2">
+<h2 class="anchored" data-anchor-id="mini-projects">📁 Mini Projects</h2>
+<p>Explore each of my analytics mini projects below:</p>
+<div class="project-grid">
+<div class="project-card">
+<h3 class="anchored">
+<a href="mp01.html">📊 Mini Project 01</a>
+</h3>
+<p>
+Student Performance: Academic predictors and trends.
+</p>
 </div>
-<div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
-<pre><code>&lt;h3&gt;&lt;a href="mp02.html" style="color: #00FF00; text-decoration: none;"&gt;🏙️ Mini Project 02&lt;/a&gt;&lt;/h3&gt;
-&lt;p style="color: #d0e6ff;"&gt;NYC Real Estate: Pricing, location insights, and remote work.&lt;/p&gt;</code></pre>
+<div class="project-card">
+<h3 class="anchored">
+<a href="mp02.html">🏙️ Mini Project 02</a>
+</h3>
+<p>
+NYC Real Estate: Pricing, location insights, and remote work.
+</p>
 </div>
-<div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
-<pre><code>&lt;h3&gt;&lt;a href="mp03.html" style="color: #00FF00; text-decoration: none;"&gt;🎶 Mini Project 03&lt;/a&gt;&lt;/h3&gt;
-&lt;p style="color: #d0e6ff;"&gt;Spotify Data: Curating the Echoes of Euphoria playlist.&lt;/p&gt;</code></pre>
+<div class="project-card">
+<h3 class="anchored">
+<a href="mp03.html">🎶 Mini Project 03</a>
+</h3>
+<p>
+Spotify Data: Curating the <em>Echoes of Euphoria</em> playlist.
+</p>
 </div>
-<div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
-<pre><code>&lt;h3&gt;&lt;a href="mp04.html" style="color: #00FF00; text-decoration: none;"&gt;🗳️ Mini Project 04&lt;/a&gt;&lt;/h3&gt;
-&lt;p style="color: #d0e6ff;"&gt;Mapping Vote Shifts from 2020 to 2024 Across U.S. Counties.&lt;/p&gt;</code></pre>
+<div class="project-card">
+<h3 class="anchored">
+<a href="mp04.html">🗳️ Mini Project 04</a>
+</h3>
+<p>
+Mapping Vote Shifts from 2020 to 2024 Across U.S. Counties.
+</p>
 </div>
-<div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
-<pre><code>&lt;h3&gt;&lt;a href="final-project.html" style="color: #00FF00; text-decoration: none;"&gt;🚉 Final Project&lt;/a&gt;&lt;/h3&gt;
-&lt;p style="color: #d0e6ff;"&gt;The New Normal Commute: Remote Work Meets the MTA.&lt;/p&gt;</code></pre>
+<div class="project-card">
+<h3 class="anchored">
+<a href="final-project.html">🚉 Final Project</a>
+</h3>
+<p>
+The New Normal: How Remote Work Reshaped NYC Transit Recovery.
+</p>
 </div>
 </div>
 <hr>
-<p>Last Updated: Thursday 05 22, 2025 at 01:47AM</p>
+<p>Last Updated: Thursday 05 22, 2025 at 02:31AM</p>
 
 
 </section>

@@ -2,6 +2,44 @@
 title: "MINI PROJECT 00"
 ---
 
+<style>
+.project-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 30px;
+  justify-content: flex-start;
+}
+
+.project-card {
+  flex: 1 1 250px;
+  background-color: var(--quarto-body-bg); /* uses morph’s light background */
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--quarto-border-color); /* uses theme’s default border */
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.05); /* soft shadow */
+  transition: transform 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  background-color: var(--quarto-hl-bg); /* subtle highlight on hover */
+}
+
+.project-card h3 a {
+  color: var(--quarto-link-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.project-card p {
+  color: var(--quarto-text-color);
+  margin-top: 10px;
+  font-size: 14px;
+}
+</style>
+
+
 My name is Devarshi Lala, and I am an International Master’s of Business Analytics (concentration in
 Marketing Analytics) student at Baruch College’s Zicklin School of Business. I am currently in my second
 semester of college, graduating in January 2026. I completed my Bachelor of Management Studies in the year
@@ -17,13 +55,13 @@ semester of college, graduating in January 2026. I completed my Bachelor of Mana
 #| warning: false
 
 if(!require("leaflet")){
-    options(repos=c(CRAN="https://cloud.r-project.org"))  
+    options(repos=c(CRAN="https://cloud.r-project.org"))
     install.packages("leaflet")
     stopifnot(require("leaflet"))
 }
 
 baruch_longitude <- -73.98333
-baruch_latitude <- 40.75028  
+baruch_latitude  <- +40.75028
 
 leaflet() |>
   addTiles() |>
@@ -34,34 +72,36 @@ leaflet() |>
 
 ---
 
-## 🎯 Explore My Mini Projects
+## 📁 Mini Projects
 
-<div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 30px; justify-content: flex-start;">
+Explore each of my analytics mini projects below:
 
-  <div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
-    <h3><a href="mp01.html" style="color: #00FF00; text-decoration: none;">📊 Mini Project 01</a></h3>
-    <p style="color: #d0e6ff;">Student Performance: Academic predictors and trends.</p>
-  </div>
+<div class="project-grid">
 
-  <div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
-    <h3><a href="mp02.html" style="color: #00FF00; text-decoration: none;">🏙️ Mini Project 02</a></h3>
-    <p style="color: #d0e6ff;">NYC Real Estate: Pricing, location insights, and remote work.</p>
-  </div>
+<div class="project-card">
+  <h3><a href="mp01.html">📊 Mini Project 01</a></h3>
+  <p>Student Performance: Academic predictors and trends.</p>
+</div>
 
-  <div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
-    <h3><a href="mp03.html" style="color: #00FF00; text-decoration: none;">🎶 Mini Project 03</a></h3>
-    <p style="color: #d0e6ff;">Spotify Data: Curating the Echoes of Euphoria playlist.</p>
-  </div>
+<div class="project-card">
+  <h3><a href="mp02.html">🏙️ Mini Project 02</a></h3>
+  <p>NYC Real Estate: Pricing, location insights, and remote work.</p>
+</div>
 
-  <div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
-    <h3><a href="mp04.html" style="color: #00FF00; text-decoration: none;">🗳️ Mini Project 04</a></h3>
-    <p style="color: #d0e6ff;">Mapping Vote Shifts from 2020 to 2024 Across U.S. Counties.</p>
-  </div>
+<div class="project-card">
+  <h3><a href="mp03.html">🎶 Mini Project 03</a></h3>
+  <p>Spotify Data: Curating the <em>Echoes of Euphoria</em> playlist.</p>
+</div>
 
-  <div style="flex: 1 1 250px; background-color: #121212; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px #00FF00;">
-    <h3><a href="final-project.html" style="color: #00FF00; text-decoration: none;">🚉 Final Project</a></h3>
-    <p style="color: #d0e6ff;">The New Normal Commute: Remote Work Meets the MTA.</p>
-  </div>
+<div class="project-card">
+  <h3><a href="mp04.html">🗳️ Mini Project 04</a></h3>
+  <p>Mapping Vote Shifts from 2020 to 2024 Across U.S. Counties.</p>
+</div>
+
+<div class="project-card">
+  <h3><a href="final-project.html">🚉 Final Project</a></h3>
+  <p>The New Normal: How Remote Work Reshaped NYC Transit Recovery.</p>
+</div>
 
 </div>
 
