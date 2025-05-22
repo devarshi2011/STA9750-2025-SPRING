@@ -99,7 +99,7 @@ Explore each of my analytics mini projects below:
 </div>
 
 <div class="project-card">
-  <h3><a href="final-project.html">🚉 Final Project</a></h3>
+  <h3><a href="final-Project.html">🚉 Final Project</a></h3>
   <p>The New Normal: How Remote Work Reshaped NYC Transit Recovery.</p>
 </div>
 

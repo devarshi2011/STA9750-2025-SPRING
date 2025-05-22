@@ -358,7 +358,7 @@ plot_data <- phase_change %>%
   )
 
 #Creating grouped bar chart
-ggplot(plot_data, aes(x = Agency, y = Percent_Change, fill = Metric)) +
+drop_recovery_plot <- ggplot(plot_data, aes(x = Agency, y = Percent_Change, fill = Metric)) +
   geom_col(position = "dodge") +
   geom_text(aes(label = paste0(Percent_Change, "%")), vjust = -0.5, position = position_dodge(0.9)) +
   scale_fill_manual(values = c(
@@ -373,6 +373,8 @@ ggplot(plot_data, aes(x = Agency, y = Percent_Change, fill = Metric)) +
   ) +
   theme_minimal()
 ```
+
+![Drop and Recovery by Agency](images/drop_recovery_plot.png){fig-align="center" width="80%"}
 
 **Analysis:** The steepest drop in ridership happened from **Pre-COVID to Core COVID**, with **MNR (-66.6%)** and **LIRR (-64.1%)** hit the hardest. Recovery from **Core to Post-COVID** varied — **MNR (88.3%)** and **LIRR (80.2%)** rebounded the most, while **BT (18%)** and **NYCT Bus (31.3%)** saw slower recoveries.
 
@@ -449,11 +451,11 @@ datatable(
   ")
 ```
 
-```{r, fig.cap="Remote Work Rates by ZIP and Ridership Loss", echo=FALSE}
+```{r}
 library(ggplot2)
 
 #Creating ggplot
-ggplot(zip_remote_mode, aes(x = reorder(ZIP, Remote_Work_Pct), y = Remote_Work_Pct, fill = Likely_Mode)) +
+remote_zip_plot <- ggplot(zip_remote_mode, aes(x = reorder(ZIP, Remote_Work_Pct), y = Remote_Work_Pct, fill = Likely_Mode)) +
   geom_col() +
   geom_text(aes(label = paste0(Pct_Change, "% drop")), vjust = -0.5, size = 3, color = "black") +
   scale_fill_manual(
@@ -472,6 +474,8 @@ ggplot(zip_remote_mode, aes(x = reorder(ZIP, Remote_Work_Pct), y = Remote_Work_P
 
 ```
 
+![Remote Work Rates by ZIP and Ridership Loss](images/remote_work_zip.png){fig-align="center" width="85%"}
+
 **Analysis:** ZIP code **10003**, which had the **highest remote work rate (\~26%)**, also experienced the **largest ridership drop (-38.8%)**, particularly on the **Subway**. In comparison, ZIPs like **10001–10005** with slightly lower remote work rates (20–25%) saw **smaller, consistent ridership losses (-32.1%)** on **NYCT Bus**. This pattern suggests that areas with more remote workers tend to rely on transit modes that faced steeper declines, especially subways.
 
 ### 🛤️ **Sub(way)** question 3: **Does higher remote work adoption in a ZIP code correlate with deeper transit ridership loss?**
@@ -479,7 +483,7 @@ ggplot(zip_remote_mode, aes(x = reorder(ZIP, Remote_Work_Pct), y = Remote_Work_P
 ```{r, fig.cap="Relationship Between Remote Work and Transit Ridership Change", echo=FALSE, fig.align="center"}
 library(ggplot2)
 
-ggplot(zip_remote_mode, aes(x = Remote_Work_Pct, y = Pct_Change, color = Likely_Mode)) +
+remote_vs_ridership_plot <- ggplot(zip_remote_mode, aes(x = Remote_Work_Pct, y = Pct_Change, color = Likely_Mode)) +
   geom_point(size = 4) +
   geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
   scale_color_manual(
@@ -497,6 +501,8 @@ ggplot(zip_remote_mode, aes(x = Remote_Work_Pct, y = Pct_Change, color = Likely_
   theme_minimal()
 
 ```
+
+![Relationship Between Remote Work and Transit Ridership Change](images/remote_vs_ridership.png){fig-align="center" width="80%"}
 
 **Analysis:** The scatter plot reveals a **negative relationship** between ZIP-level remote work percentages and the recovery of their primary transit mode. ZIPs with **higher remote work rates** tend to be associated with **greater ridership declines** between 2019 and 2023. This suggests that as more people work from home, **commute-dependent transit modes like the Subway and NYCT Bus** have struggled to recover pre-pandemic ridership levels.
 
